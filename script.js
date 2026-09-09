@@ -1,80 +1,39 @@
-/* =========================================
-   も”ゃんけん
-========================================= */
+/* =========================================================
+   も"ゃんけん
+   script.js
+========================================================= */
 
 
-/* =========================================
-   ★ 音声ファイル設定 ★
-
-   ファイル名を変更する場合は
-   ここだけ変更してください。
-========================================= */
+/* =========================================================
+   音声ファイル設定
+========================================================= */
 
 const AUDIO_FILES = {
-
-  // ゲーム中BGM
   bgm: "bgm.mp3",
-
-  // ラウンド勝利SE
   roundWin: "win.mp3",
-
-  // ラウンド敗北SE
   roundLose: "lose.mp3",
-
-  // あいこSE
   draw: "draw.mp3",
-
-  // 最終結果：勝利
   finalWin: "final-win.mp3",
-
-  // 最終結果：敗北
   finalLose: "final-lose.mp3"
-
 };
 
 
-/* =========================================
+/* =========================================================
    ゲーム設定
-========================================= */
+========================================================= */
 
 const MAX_ROUNDS = 9;
-
 const MAX_HAND_COUNT = 3;
 
-
-/*
-   スコアの理論上の最大・最小値
-
-   最大：
-   8回あいこ
-   ↓
-   ×256
-   ↓
-   最後に勝利
-   ↓
-   256 × 2 = +512
-
-   最小：
-   8回あいこ
-   ↓
-   ×256
-   ↓
-   最後に敗北
-   ↓
-   -256
-*/
-
 const MIN_SCORE = -256;
-
 const MAX_SCORE = 512;
 
 
-/* =========================================
+/* =========================================================
    手の設定
-========================================= */
+========================================================= */
 
 const HANDS = {
-
   rock: {
     name: "グー",
     image: "guu.png"
@@ -89,324 +48,1407 @@ const HANDS = {
     name: "パー",
     image: "pa.png"
   }
-
 };
 
 
-/* =========================================
+/* =========================================================
    ゲーム状態
-========================================= */
+========================================================= */
 
-let playerStock;
+let playerStock = {
+  rock: 3,
+  scissors: 3,
+  paper: 3
+};
 
-let cpuStock;
+let cpuStock = {
+  rock: 3,
+  scissors: 3,
+  paper: 3
+};
 
-let score;
+let score = 0;
 
-let multiplier;
+let multiplier = 1;
 
-let round;
+let round = 1;
 
-let playerWins;
+let playerWins = 0;
+let cpuWins = 0;
+let draws = 0;
 
-let cpuWins;
-
-let draws;
-
-let gameOver;
-
+let gameOver = false;
 
 /*
-   ★ 高速連打対策
-
-   1ラウンド処理中は true にします。
-
-   true の間は新しい手を選択できません。
-
-   これによりスマホなどで
-   高速連打しても、
-   1回のクリックにつき
-   1ラウンドだけ処理されます。
-*/
-
+ * スマホで高速タップされた際に
+ * 同じラウンドが複数回処理されるのを防ぐ。
+ */
 let isProcessing = false;
 
-
 /*
-   ゲーム終了処理が
-   二重に実行されるのを防止
-*/
-
+ * endGameが複数回呼ばれるのを防ぐ。
+ */
 let endGameStarted = false;
 
 
-/* =========================================
-   音声オブジェクト
-========================================= */
+/* =========================================================
+   ダも"ルアップ状態
+========================================================= */
 
-const sounds = {
+let doubleUpActive = false;
 
-  bgm:
-    new Audio(
-      AUDIO_FILES.bgm
-    ),
+/*
+ * ダも"ルアップの何回目か
+ *
+ * 0 = まだ開始前
+ * 1 = 1回目
+ * 2 = 2回目
+ * 3 = 3回目
+ */
+let doubleUpRound = 0;
 
-  roundWin:
-    new Audio(
-      AUDIO_FILES.roundWin
-    ),
+/*
+ * ダも"ルアップ成功回数
+ */
+let doubleUpSuccesses = 0;
 
-  roundLose:
-    new Audio(
-      AUDIO_FILES.roundLose
-    ),
+/*
+ * 現在表示されているカード
+ */
+let currentCardValue = null;
 
-  draw:
-    new Audio(
-      AUDIO_FILES.draw
-    ),
-
-  finalWin:
-    new Audio(
-      AUDIO_FILES.finalWin
-    ),
-
-  finalLose:
-    new Audio(
-      AUDIO_FILES.finalLose
-    )
-
-};
+/*
+ * ダも"ルアップ中の処理ロック
+ */
+let doubleUpProcessing = false;
 
 
-/* =========================================
-   音声設定
-========================================= */
+/* =========================================================
+   オーディオ
+========================================================= */
 
-sounds.bgm.loop = true;
+const bgm = new Audio(AUDIO_FILES.bgm);
+
+const roundWinSE = new Audio(AUDIO_FILES.roundWin);
+const roundLoseSE = new Audio(AUDIO_FILES.roundLose);
+const drawSE = new Audio(AUDIO_FILES.draw);
+
+const finalWinSE = new Audio(AUDIO_FILES.finalWin);
+const finalLoseSE = new Audio(AUDIO_FILES.finalLose);
+
+bgm.loop = true;
+
+bgm.volume = 0.35;
+
+roundWinSE.volume = 0.7;
+roundLoseSE.volume = 0.7;
+drawSE.volume = 0.7;
+
+finalWinSE.volume = 0.8;
+finalLoseSE.volume = 0.8;
 
 
-sounds.bgm.volume = 0.35;
+/* =========================================================
+   オーディオ関数
+========================================================= */
 
-sounds.roundWin.volume = 0.8;
-
-sounds.roundLose.volume = 0.8;
-
-sounds.draw.volume = 0.8;
-
-sounds.finalWin.volume = 1.0;
-
-sounds.finalLose.volume = 1.0;
-
-
-let bgmStarted = false;
+function startBGM() {
+  bgm.play().catch(() => {
+    /*
+     * ブラウザの自動再生制限によるエラーは無視。
+     * プレイヤーのボタン操作後なら再生できる。
+     */
+  });
+}
 
 
-/* =========================================
-   HTML要素
-========================================= */
+function stopBGM() {
+  bgm.pause();
+  bgm.currentTime = 0;
+}
+
+
+function playSE(audio) {
+  audio.currentTime = 0;
+
+  audio.play().catch(() => {
+    /*
+     * 再生できない場合はゲーム進行を止めない。
+     */
+  });
+}
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const roundElement =
+  document.getElementById("round");
 
 const scoreElement =
-  document.getElementById(
-    "score"
-  );
-
+  document.getElementById("score");
 
 const multiplierElement =
-  document.getElementById(
-    "multiplier"
-  );
+  document.getElementById("multiplier");
+
+const multiplierCard =
+  document.getElementById("multiplierCard");
 
 
-const roundNumberElement =
-  document.getElementById(
-    "roundNumber"
-  );
+const playerRockStockElement =
+  document.getElementById("playerRockStock");
+
+const playerScissorsStockElement =
+  document.getElementById("playerScissorsStock");
+
+const playerPaperStockElement =
+  document.getElementById("playerPaperStock");
+
+
+const cpuRockStockElement =
+  document.getElementById("cpuRockStock");
+
+const cpuScissorsStockElement =
+  document.getElementById("cpuScissorsStock");
+
+const cpuPaperStockElement =
+  document.getElementById("cpuPaperStock");
 
 
 const playerHandElement =
-  document.getElementById(
-    "player-hand"
-  );
-
+  document.getElementById("playerHand");
 
 const cpuHandElement =
-  document.getElementById(
-    "cpu-hand"
-  );
+  document.getElementById("cpuHand");
 
 
 const resultMessageElement =
-  document.getElementById(
-    "result-message"
-  );
-
+  document.getElementById("resultMessage");
 
 const pointsMessageElement =
-  document.getElementById(
-    "points-message"
-  );
+  document.getElementById("pointsMessage");
 
 
-const gameOverModal =
-  document.getElementById(
-    "gameOverModal"
-  );
+const choiceButtons =
+  document.querySelectorAll(".choice-button");
 
 
-/* =========================================
-   ボタン
-========================================= */
+/* =========================================================
+   ダも"ルアップ DOM
+========================================================= */
 
-const rockButton =
-  document.getElementById(
-    "rockButton"
-  );
+const doubleUpModal =
+  document.getElementById("doubleUpModal");
+
+const doubleUpScoreElement =
+  document.getElementById("doubleUpScore");
+
+const doubleUpProgressElement =
+  document.getElementById("doubleUpProgress");
+
+const currentCardElement =
+  document.getElementById("currentCard");
+
+const currentCardRankTopElement =
+  document.getElementById("currentCardRankTop");
+
+const currentCardSuitTopElement =
+  document.getElementById("currentCardSuitTop");
+
+const currentCardCenterElement =
+  document.getElementById("currentCardCenter");
+
+const currentCardRankBottomElement =
+  document.getElementById("currentCardRankBottom");
+
+const currentCardSuitBottomElement =
+  document.getElementById("currentCardSuitBottom");
+
+const highButton =
+  document.getElementById("highButton");
+
+const lowButton =
+  document.getElementById("lowButton");
+
+const highLowMessageElement =
+  document.getElementById("highLowMessage");
 
 
-const scissorsButton =
-  document.getElementById(
-    "scissorsButton"
-  );
+/* =========================================================
+   最終結果 DOM
+========================================================= */
+
+const resultModal =
+  document.getElementById("resultModal");
+
+const finalResultMessageElement =
+  document.getElementById("finalResultMessage");
+
+const finalTitleElement =
+  document.getElementById("finalTitle");
+
+const finalScoreElement =
+  document.getElementById("finalScore");
+
+const finalWinsElement =
+  document.getElementById("finalWins");
+
+const finalLossesElement =
+  document.getElementById("finalLosses");
+
+const finalDrawsElement =
+  document.getElementById("finalDraws");
+
+const doubleUpResultElement =
+  document.getElementById("doubleUpResult");
+
+const restartButton =
+  document.getElementById("restartButton");
 
 
-const paperButton =
-  document.getElementById(
-    "paperButton"
-  );
+/* =========================================================
+   表示更新
+========================================================= */
+
+function updateDisplay() {
+
+  roundElement.textContent = round;
+
+  scoreElement.textContent = score;
+
+  multiplierElement.textContent =
+    `×${multiplier}`;
 
 
-const choiceButtons = [
-  rockButton,
-  scissorsButton,
-  paperButton
-];
+  playerRockStockElement.textContent =
+    playerStock.rock;
+
+  playerScissorsStockElement.textContent =
+    playerStock.scissors;
+
+  playerPaperStockElement.textContent =
+    playerStock.paper;
 
 
-/* =========================================
-   BGM開始
-========================================= */
+  cpuRockStockElement.textContent =
+    cpuStock.rock;
 
-function startBGM() {
+  cpuScissorsStockElement.textContent =
+    cpuStock.scissors;
 
-  if (bgmStarted) {
+  cpuPaperStockElement.textContent =
+    cpuStock.paper;
+
+
+  updateChoiceButtons();
+
+}
+
+
+/* =========================================================
+   選択ボタンの使用可能状態
+========================================================= */
+
+function updateChoiceButtons() {
+
+  choiceButtons.forEach(button => {
+
+    const hand =
+      button.dataset.hand;
+
+    button.disabled =
+      playerStock[hand] <= 0 ||
+      isProcessing ||
+      gameOver ||
+      doubleUpActive;
+
+  });
+
+}
+
+
+/* =========================================================
+   CPUの手をランダム選択
+========================================================= */
+
+function getCpuChoice() {
+
+  const availableHands =
+    Object.keys(cpuStock).filter(
+      hand => cpuStock[hand] > 0
+    );
+
+  if (availableHands.length === 0) {
+    return null;
+  }
+
+  const randomIndex =
+    Math.floor(
+      Math.random() * availableHands.length
+    );
+
+  return availableHands[randomIndex];
+}
+
+
+/* =========================================================
+   じゃんけん判定
+========================================================= */
+
+function judge(playerChoice, cpuChoice) {
+
+  if (playerChoice === cpuChoice) {
+    return "draw";
+  }
+
+
+  if (
+    (playerChoice === "rock" &&
+      cpuChoice === "scissors") ||
+
+    (playerChoice === "scissors" &&
+      cpuChoice === "paper") ||
+
+    (playerChoice === "paper" &&
+      cpuChoice === "rock")
+  ) {
+    return "win";
+  }
+
+
+  return "lose";
+}
+
+
+/* =========================================================
+   手の画像表示
+========================================================= */
+
+function showHand(element, hand) {
+
+  if (!hand || !HANDS[hand]) {
+    element.innerHTML =
+      `<span class="question-mark">?</span>`;
+
     return;
   }
 
 
-  bgmStarted = true;
+  element.innerHTML = `
+    <img
+      src="${HANDS[hand].image}"
+      alt="${HANDS[hand].name}"
+    >
+  `;
+}
 
 
-  sounds.bgm.currentTime = 0;
+/* =========================================================
+   結果表示
+========================================================= */
+
+function showResult(result, points) {
+
+  resultMessageElement.className =
+    "result-message";
+
+  pointsMessageElement.textContent = "";
 
 
-  const playPromise =
-    sounds.bgm.play();
+  if (result === "win") {
 
+    resultMessageElement.textContent =
+      "貴様の勝ち";
 
-  if (
-    playPromise &&
-    typeof playPromise.catch === "function"
-  ) {
+    resultMessageElement.classList.add(
+      "result-win"
+    );
 
-    playPromise.catch(() => {
+    pointsMessageElement.textContent =
+      `+${points} 点`;
 
-      bgmStarted = false;
+  } else if (result === "lose") {
 
-    });
+    resultMessageElement.textContent =
+      "貴様の負け";
 
+    resultMessageElement.classList.add(
+      "result-lose"
+    );
+
+    pointsMessageElement.textContent =
+      `${points} 点`;
+
+  } else {
+
+    resultMessageElement.textContent =
+      "あいこ";
+
+    resultMessageElement.classList.add(
+      "result-draw"
+    );
+
+    pointsMessageElement.textContent =
+      `倍率が ×${multiplier} に上昇`;
   }
 
 }
 
 
-/* =========================================
-   BGM停止
-========================================= */
+/* =========================================================
+   称号判定
+========================================================= */
 
-function stopBGM() {
+function getTitleByScore(currentScore) {
 
-  sounds.bgm.pause();
+  if (currentScore <= -161) {
+    return "カニの食べられないところ";
+  }
 
-  sounds.bgm.currentTime = 0;
+  if (currentScore <= -65) {
+    return "壊れたブンブンチョッパー";
+  }
 
-  bgmStarted = false;
+  if (currentScore <= 31) {
+    return "インド象を見てるガキ";
+  }
 
+  if (currentScore <= 127) {
+    return "インディーズバンドドラム担当";
+  }
+
+  if (currentScore <= 223) {
+    return "勝ち気で陽気なホームレス";
+  }
+
+  if (currentScore <= 319) {
+    return "BOOKOFFせどりのプロ";
+  }
+
+  if (currentScore <= 415) {
+    return "激エロのモロホスト";
+  }
+
+  return "も";
 }
 
 
-/* =========================================
-   SE再生
-========================================= */
+/* =========================================================
+   じゃんけん1ラウンド
+========================================================= */
 
-function playSE(soundName) {
+function playRound(playerChoice) {
 
-  const sound =
-    sounds[soundName];
-
-
-  if (!sound) {
+  /*
+   * 高速タップ対策
+   */
+  if (
+    isProcessing ||
+    gameOver ||
+    doubleUpActive
+  ) {
     return;
   }
 
 
-  sound.currentTime = 0;
-
-
-  const playPromise =
-    sound.play();
-
-
+  /*
+   * 所持数チェック
+   */
   if (
-    playPromise &&
-    typeof playPromise.catch === "function"
+    !playerStock[playerChoice] ||
+    playerStock[playerChoice] <= 0
   ) {
+    return;
+  }
 
-    playPromise.catch(() => {
+
+  /*
+   * 処理開始ロック
+   */
+  isProcessing = true;
+
+  choiceButtons.forEach(button => {
+    button.classList.add("processing");
+  });
+
+
+  /*
+   * BGMは最初のユーザー操作で開始。
+   */
+  startBGM();
+
+
+  /*
+   * CPUの手を決定
+   */
+  const cpuChoice =
+    getCpuChoice();
+
+
+  if (!cpuChoice) {
+    isProcessing = false;
+    return;
+  }
+
+
+  /*
+   * 使用回数を減らす
+   */
+  playerStock[playerChoice]--;
+
+  cpuStock[cpuChoice]--;
+
+
+  /*
+   * 手を表示
+   */
+  showHand(
+    playerHandElement,
+    playerChoice
+  );
+
+  showHand(
+    cpuHandElement,
+    cpuChoice
+  );
+
+
+  /*
+   * 勝敗判定
+   */
+  const result =
+    judge(
+      playerChoice,
+      cpuChoice
+    );
+
+
+  /*
+   * 勝利
+   */
+  if (result === "win") {
+
+    playerWins++;
+
+    const points =
+      2 * multiplier;
+
+    score += points;
+
+    playSE(roundWinSE);
+
+    showResult(
+      "win",
+      points
+    );
+
+
+    /*
+     * 勝利した場合は倍率をリセット
+     */
+    multiplier = 1;
+
+
+    multiplierCard.classList.remove(
+      "multiplier-active"
+    );
+
+    void multiplierCard.offsetWidth;
+
+    multiplierCard.classList.add(
+      "multiplier-active"
+    );
+
+  }
+
+
+  /*
+   * 敗北
+   */
+  else if (result === "lose") {
+
+    cpuWins++;
+
+    const points =
+      -1 * multiplier;
+
+    score += points;
+
+    playSE(roundLoseSE);
+
+    showResult(
+      "lose",
+      points
+    );
+
+
+    /*
+     * 敗北した場合は倍率をリセット
+     */
+    multiplier = 1;
+
+
+    multiplierCard.classList.remove(
+      "multiplier-active"
+    );
+
+    void multiplierCard.offsetWidth;
+
+    multiplierCard.classList.add(
+      "multiplier-active"
+    );
+
+  }
+
+
+  /*
+   * あいこ
+   */
+  else {
+
+    draws++;
+
+    playSE(drawSE);
+
+
+    /*
+     * あいこなら倍率2倍
+     */
+    multiplier *= 2;
+
+
+    showResult(
+      "draw",
+      0
+    );
+
+
+    multiplierCard.classList.remove(
+      "multiplier-active"
+    );
+
+    void multiplierCard.offsetWidth;
+
+    multiplierCard.classList.add(
+      "multiplier-active"
+    );
+
+  }
+
+
+  updateDisplay();
+
+
+  /*
+   * 最終ラウンド
+   */
+  if (round >= MAX_ROUNDS) {
+
+    gameOver = true;
+
+    updateChoiceButtons();
+
+
+    /*
+     * 少し結果を見せてから
+     * 次の処理へ。
+     */
+    setTimeout(() => {
+
+      isProcessing = false;
+
+      choiceButtons.forEach(button => {
+        button.classList.remove("processing");
+      });
+
 
       /*
-        音声が再生できなくても
-        ゲーム本体は停止しません。
-      */
+       * ここが今回の追加部分。
+       *
+       * 貴様の勝ち数が
+       * フレネミーより多かった場合、
+       * 最終結果を出す前に
+       * ダも"ルアップへ。
+       */
+      if (playerWins > cpuWins) {
 
+        startDoubleUpChance();
+
+      } else {
+
+        endGame();
+
+      }
+
+    }, 900);
+
+
+    return;
+  }
+
+
+  /*
+   * 通常ラウンド終了
+   */
+  setTimeout(() => {
+
+    round++;
+
+    isProcessing = false;
+
+    choiceButtons.forEach(button => {
+      button.classList.remove("processing");
     });
 
-  }
+
+    /*
+     * 次ラウンドの表示を初期化
+     */
+    playerHandElement.innerHTML =
+      `<span class="question-mark">?</span>`;
+
+    cpuHandElement.innerHTML =
+      `<span class="question-mark">?</span>`;
+
+
+    resultMessageElement.className =
+      "result-message";
+
+    resultMessageElement.textContent =
+      "おい、選べる";
+
+    pointsMessageElement.textContent =
+      "";
+
+
+    updateDisplay();
+
+  }, 650);
 
 }
 
 
-/* =========================================
+/* =========================================================
+   ダも"ルアップ開始
+========================================================= */
+
+function startDoubleUpChance() {
+
+  /*
+   * ゲーム状態
+   */
+  doubleUpActive = true;
+
+  doubleUpProcessing = false;
+
+  doubleUpRound = 1;
+
+  doubleUpSuccesses = 0;
+
+
+  /*
+   * 最初のカードを引く。
+   */
+  currentCardValue =
+    drawCardValue();
+
+
+  /*
+   * 表示
+   */
+  updateDoubleUpScore();
+
+  updateDoubleUpProgress();
+
+  displayCard(
+    currentCardValue,
+    false
+  );
+
+
+  highLowMessageElement.textContent =
+    "運命を選べ。";
+
+  highLowMessageElement.className =
+    "high-low-message";
+
+
+  /*
+   * ボタンを有効化
+   */
+  highButton.disabled = false;
+  lowButton.disabled = false;
+
+
+  /*
+   * モーダル表示
+   */
+  doubleUpModal.classList.add(
+    "active"
+  );
+
+
+  /*
+   * スクロールを止める
+   */
+  document.body.style.overflow =
+    "hidden";
+
+
+  /*
+   * 既存のゲームUIを操作不能にする。
+   */
+  updateChoiceButtons();
+
+}
+
+
+/* =========================================================
+   ダも"ルアップ スコア表示
+========================================================= */
+
+function updateDoubleUpScore() {
+
+  doubleUpScoreElement.textContent =
+    score;
+
+}
+
+
+/* =========================================================
+   ダも"ルアップ 進行表示
+========================================================= */
+
+function updateDoubleUpProgress() {
+
+  doubleUpProgressElement.textContent =
+    `CHANCE ${doubleUpRound} / 3`;
+
+}
+
+
+/* =========================================================
+   トランプを引く
+========================================================= */
+
+function drawCardValue() {
+
+  /*
+   * 1～13
+   *
+   * A = 1
+   * J = 11
+   * Q = 12
+   * K = 13
+   */
+  return Math.floor(
+    Math.random() * 13
+  ) + 1;
+
+}
+
+
+/* =========================================================
+   カード情報
+========================================================= */
+
+function getCardRank(value) {
+
+  if (value === 1) {
+    return "A";
+  }
+
+  if (value === 11) {
+    return "J";
+  }
+
+  if (value === 12) {
+    return "Q";
+  }
+
+  if (value === 13) {
+    return "K";
+  }
+
+  return String(value);
+
+}
+
+
+/*
+ * 今回は見た目重視で
+ * カード中央に♠を表示。
+ *
+ * HIGH / LOWの判定自体は
+ * 数字だけで行う。
+ */
+function getCardSuit() {
+
+  return "♠";
+
+}
+
+
+/* =========================================================
+   カード表示
+========================================================= */
+
+function displayCard(value, animate = true) {
+
+  if (animate) {
+
+    currentCardElement.classList.remove(
+      "card-flip"
+    );
+
+    void currentCardElement.offsetWidth;
+
+    currentCardElement.classList.add(
+      "card-flip"
+    );
+
+  }
+
+
+  const rank =
+    getCardRank(value);
+
+  const suit =
+    getCardSuit();
+
+
+  currentCardRankTopElement.textContent =
+    rank;
+
+  currentCardSuitTopElement.textContent =
+    suit;
+
+
+  currentCardCenterElement.textContent =
+    suit;
+
+
+  currentCardRankBottomElement.textContent =
+    rank;
+
+  currentCardSuitBottomElement.textContent =
+    suit;
+
+}
+
+
+/* =========================================================
+   HIGH / LOW判定
+========================================================= */
+
+function judgeHighLow(
+  previousValue,
+  nextValue,
+  prediction
+) {
+
+  /*
+   * 同じ数字は失敗扱い。
+   */
+  if (previousValue === nextValue) {
+    return false;
+  }
+
+
+  if (
+    prediction === "high" &&
+    nextValue > previousValue
+  ) {
+    return true;
+  }
+
+
+  if (
+    prediction === "low" &&
+    nextValue < previousValue
+  ) {
+    return true;
+  }
+
+
+  return false;
+
+}
+
+
+/* =========================================================
+   ダも"ルアップ挑戦
+========================================================= */
+
+function playHighLow(prediction) {
+
+  /*
+   * 連打対策
+   */
+  if (
+    !doubleUpActive ||
+    doubleUpProcessing ||
+    doubleUpRound > 3
+  ) {
+    return;
+  }
+
+
+  doubleUpProcessing = true;
+
+
+  /*
+   * ボタンを一時的に無効化
+   */
+  highButton.disabled = true;
+  lowButton.disabled = true;
+
+
+  /*
+   * 次のカードを引く。
+   */
+  const nextCardValue =
+    drawCardValue();
+
+
+  /*
+   * 判定
+   */
+  const correct =
+    judgeHighLow(
+      currentCardValue,
+      nextCardValue,
+      prediction
+    );
+
+
+  /*
+   * カードを表示。
+   */
+  displayCard(
+    nextCardValue,
+    true
+  );
+
+
+  /*
+   * 的中
+   */
+  if (correct) {
+
+    doubleUpSuccesses++;
+
+    /*
+     * 現在の持ち点を2倍。
+     */
+    score *= 2;
+
+
+    updateDoubleUpScore();
+
+
+    highLowMessageElement.textContent =
+      `的中！！ 持ち点が ${score} 点になった！`;
+
+    highLowMessageElement.className =
+      "high-low-message success";
+
+
+    /*
+     * スコアの大爆発演出
+     */
+    doubleUpScoreElement.classList.remove(
+      "score-doubled"
+    );
+
+    void doubleUpScoreElement.offsetWidth;
+
+    doubleUpScoreElement.classList.add(
+      "score-doubled"
+    );
+
+
+    /*
+     * 3回すべて成功
+     */
+    if (doubleUpSuccesses >= 3) {
+
+      doubleUpRound = 3;
+
+      updateDoubleUpProgress();
+
+
+      setTimeout(() => {
+
+        highLowMessageElement.textContent =
+          "3連続的中！！ ここで終了だ。";
+
+        setTimeout(() => {
+
+          finishDoubleUp(
+            "success"
+          );
+
+        }, 900);
+
+      }, 500);
+
+
+      return;
+    }
+
+
+    /*
+     * 次のチャンスへ
+     */
+    doubleUpRound++;
+
+    currentCardValue =
+      nextCardValue;
+
+
+    setTimeout(() => {
+
+      updateDoubleUpProgress();
+
+      highLowMessageElement.textContent =
+        "まだいける。次を選べ。";
+
+      highLowMessageElement.className =
+        "high-low-message";
+
+      highButton.disabled = false;
+      lowButton.disabled = false;
+
+      doubleUpProcessing = false;
+
+    }, 750);
+
+
+    return;
+  }
+
+
+  /*
+   * ハズレ
+   */
+  highLowMessageElement.textContent =
+    "ハズレ！！ ダも" +
+    '"ルアップ終了。';
+
+  highLowMessageElement.className =
+    "high-low-message failure";
+
+
+  /*
+   * ハズレた時点で終了。
+   */
+  setTimeout(() => {
+
+    finishDoubleUp(
+      "failure"
+    );
+
+  }, 1000);
+
+}
+
+
+/* =========================================================
+   ダも"ルアップ終了
+========================================================= */
+
+function finishDoubleUp(reason) {
+
+  if (!doubleUpActive) {
+    return;
+  }
+
+
+  doubleUpActive = false;
+
+  doubleUpProcessing = false;
+
+
+  highButton.disabled = true;
+  lowButton.disabled = true;
+
+
+  /*
+   * 結果メッセージを少し表示。
+   */
+  if (reason === "success") {
+
+    highLowMessageElement.textContent =
+      "限界突破。最終結果へ。";
+
+  } else {
+
+    highLowMessageElement.textContent =
+      "運命はここまでだ。";
+
+  }
+
+
+  /*
+   * モーダルを閉じる。
+   */
+  setTimeout(() => {
+
+    doubleUpModal.classList.remove(
+      "active"
+    );
+
+
+    document.body.style.overflow =
+      "";
+
+
+    /*
+     * 最終結果へ。
+     */
+    endGame();
+
+  }, 700);
+
+}
+
+
+/* =========================================================
+   最終結果
+========================================================= */
+
+function endGame() {
+
+  /*
+   * 二重実行防止
+   */
+  if (endGameStarted) {
+    return;
+  }
+
+  endGameStarted = true;
+
+  gameOver = true;
+
+  doubleUpActive = false;
+
+  stopBGM();
+
+
+  /*
+   * 最終結果の勝敗。
+   *
+   * じゃんけんの勝ち数そのものを
+   * 基準にする。
+   */
+  if (playerWins > cpuWins) {
+
+    finalResultMessageElement.textContent =
+      "貴様の勝利";
+
+    playSE(finalWinSE);
+
+  } else if (playerWins < cpuWins) {
+
+    finalResultMessageElement.textContent =
+      "貴様の敗北";
+
+    playSE(finalLoseSE);
+
+  } else {
+
+    finalResultMessageElement.textContent =
+      "引き分け";
+
+  }
+
+
+  /*
+   * 最終称号。
+   *
+   * ダも"ルアップを行った場合も
+   * その後の最終スコアで判定。
+   */
+  const finalTitle =
+    getTitleByScore(score);
+
+
+  finalTitleElement.textContent =
+    finalTitle;
+
+
+  finalScoreElement.textContent =
+    score;
+
+
+  finalWinsElement.textContent =
+    playerWins;
+
+  finalLossesElement.textContent =
+    cpuWins;
+
+  finalDrawsElement.textContent =
+    draws;
+
+
+  /*
+   * ダも"ルアップ結果表示
+   */
+  if (doubleUpSuccesses > 0) {
+
+    const multiplierText =
+      Math.pow(
+        2,
+        doubleUpSuccesses
+      );
+
+    doubleUpResultElement.textContent =
+      `ダも"ルアップ成功 ${doubleUpSuccesses}回！ 持ち点 ×${multiplierText}`;
+
+  } else {
+
+    doubleUpResultElement.textContent =
+      "";
+
+  }
+
+
+  /*
+   * 結果モーダル表示
+   */
+  resultModal.classList.add(
+    "active"
+  );
+
+
+  document.body.style.overflow =
+    "hidden";
+
+
+  updateChoiceButtons();
+
+}
+
+
+/* =========================================================
    ゲーム初期化
-========================================= */
+========================================================= */
 
 function initializeGame() {
 
   playerStock = {
-
-    rock:
-      MAX_HAND_COUNT,
-
-    scissors:
-      MAX_HAND_COUNT,
-
-    paper:
-      MAX_HAND_COUNT
-
+    rock: 3,
+    scissors: 3,
+    paper: 3
   };
 
 
   cpuStock = {
-
-    rock:
-      MAX_HAND_COUNT,
-
-    scissors:
-      MAX_HAND_COUNT,
-
-    paper:
-      MAX_HAND_COUNT
-
+    rock: 3,
+    scissors: 3,
+    paper: 3
   };
 
 
@@ -429,1025 +1471,146 @@ function initializeGame() {
   endGameStarted = false;
 
 
-  stopBGM();
-
-
-  gameOverModal.classList.add(
-    "hidden"
-  );
-
-
-  resetBattleDisplay();
-
-
-  updateDisplay();
-
-}
-
-
-/* =========================================
-   画面更新
-========================================= */
-
-function updateDisplay() {
-
-  scoreElement.textContent =
-    score;
-
-
-  multiplierElement.textContent =
-    `×${multiplier}`;
-
-
-  roundNumberElement.textContent =
-    round;
-
-
-  /* -------------------------
-     貴様
-  ------------------------- */
-
-  document.getElementById(
-    "player-rock-count"
-  ).textContent =
-    playerStock.rock;
-
-
-  document.getElementById(
-    "player-scissors-count"
-  ).textContent =
-    playerStock.scissors;
-
-
-  document.getElementById(
-    "player-paper-count"
-  ).textContent =
-    playerStock.paper;
-
-
-  /* -------------------------
-     フレネミー
-  ------------------------- */
-
-  document.getElementById(
-    "cpu-rock-count"
-  ).textContent =
-    cpuStock.rock;
-
-
-  document.getElementById(
-    "cpu-scissors-count"
-  ).textContent =
-    cpuStock.scissors;
-
-
-  document.getElementById(
-    "cpu-paper-count"
-  ).textContent =
-    cpuStock.paper;
-
-
-  /* -------------------------
-     選択ボタン
-  ------------------------- */
-
-  rockButton.disabled =
-    playerStock.rock <= 0 ||
-    gameOver ||
-    isProcessing;
-
-
-  scissorsButton.disabled =
-    playerStock.scissors <= 0 ||
-    gameOver ||
-    isProcessing;
-
-
-  paperButton.disabled =
-    playerStock.paper <= 0 ||
-    gameOver ||
-    isProcessing;
-
-
-  /* -------------------------
-     処理中クラス
-  ------------------------- */
-
-  choiceButtons.forEach(
-    button => {
-
-      button.classList.toggle(
-        "processing",
-        isProcessing
-      );
-
-    }
-  );
-
-
-  /* -------------------------
-     ボタン内残数
-  ------------------------- */
-
-  document.getElementById(
-    "button-rock-count"
-  ).textContent =
-    playerStock.rock;
-
-
-  document.getElementById(
-    "button-scissors-count"
-  ).textContent =
-    playerStock.scissors;
-
-
-  document.getElementById(
-    "button-paper-count"
-  ).textContent =
-    playerStock.paper;
-
-}
-
-
-/* =========================================
-   フレネミーの手を決定
-========================================= */
-
-function getCpuHand() {
-
-  const availableHands =
-    Object.keys(cpuStock)
-      .filter(
-        hand =>
-          cpuStock[hand] > 0
-      );
-
-
-  if (
-    availableHands.length === 0
-  ) {
-
-    return null;
-
-  }
-
-
-  const randomIndex =
-    Math.floor(
-      Math.random() *
-      availableHands.length
-    );
-
-
-  return availableHands[
-    randomIndex
-  ];
-
-}
-
-
-/* =========================================
-   勝敗判定
-========================================= */
-
-function judge(
-  player,
-  cpu
-) {
-
   /*
-     あいこ
-  */
+   * ダも"ルアップ状態もリセット
+   */
+  doubleUpActive = false;
 
-  if (
-    player === cpu
-  ) {
+  doubleUpRound = 0;
 
-    return "draw";
+  doubleUpSuccesses = 0;
 
-  }
+  currentCardValue = null;
+
+  doubleUpProcessing = false;
 
 
   /*
-     貴様の勝ち
-  */
-
-  if (
-
-    (
-      player === "rock" &&
-      cpu === "scissors"
-    )
-
-    ||
-
-    (
-      player === "scissors" &&
-      cpu === "paper"
-    )
-
-    ||
-
-    (
-      player === "paper" &&
-      cpu === "rock"
-    )
-
-  ) {
-
-    return "win";
-
-  }
-
-
-  /*
-     貴様の負け
-  */
-
-  return "lose";
-
-}
-
-
-/* =========================================
-   手を表示
-========================================= */
-
-function showHand(
-  element,
-  hand
-) {
-
-  if (
-    !hand ||
-    !HANDS[hand]
-  ) {
-
-    element.textContent =
-      "?";
-
-    return;
-
-  }
-
-
-  element.innerHTML =
-    "";
-
-
-  const image =
-    document.createElement(
-      "img"
-    );
-
-
-  image.src =
-    HANDS[hand].image;
-
-
-  image.alt =
-    HANDS[hand].name;
-
-
-  element.appendChild(
-    image
-  );
-
-}
-
-
-/* =========================================
-   バトル画面リセット
-========================================= */
-
-function resetBattleDisplay() {
-
-  playerHandElement.textContent =
-    "?";
-
-
-  cpuHandElement.textContent =
-    "?";
-
+   * UI初期化
+   */
+  resultMessageElement.className =
+    "result-message";
 
   resultMessageElement.textContent =
     "おい、選べる";
 
-
-  resultMessageElement.className =
-    "result-message";
-
-
   pointsMessageElement.textContent =
-    "現在の倍率 ×1";
+    "";
 
-}
 
+  playerHandElement.innerHTML =
+    `<span class="question-mark">?</span>`;
 
-/* =========================================
-   結果表示
-========================================= */
-
-function showResult(
-  result,
-  points
-) {
-
-  resultMessageElement.className =
-    "result-message";
-
-
-  /* -------------------------
-     勝ち
-  ------------------------- */
-
-  if (
-    result === "win"
-  ) {
-
-    resultMessageElement.textContent =
-      "🎉 貴様の勝ち！";
-
-
-    resultMessageElement.classList.add(
-      "result-win"
-    );
-
-
-    pointsMessageElement.textContent =
-      `+${points} ポイント！`;
-
-  }
-
-
-  /* -------------------------
-     負け
-  ------------------------- */
-
-  else if (
-    result === "lose"
-  ) {
-
-    resultMessageElement.textContent =
-      "💥 貴様の負け…";
-
-
-    resultMessageElement.classList.add(
-      "result-lose"
-    );
-
-
-    pointsMessageElement.textContent =
-      `-${points} ポイント…`;
-
-  }
-
-
-  /* -------------------------
-     あいこ
-  ------------------------- */
-
-  else {
-
-    resultMessageElement.textContent =
-      "🤝 あいこ！";
-
-
-    resultMessageElement.classList.add(
-      "result-draw"
-    );
-
-
-    pointsMessageElement.textContent =
-      `次の倍率が ×${multiplier} になります！`;
-
-  }
-
-}
-
-
-/* =========================================
-   ★ スコアから称号を取得
-========================================= */
-
-function getTitleByScore(
-  currentScore
-) {
-
-  /*
-     -256 ～ +512 を
-     8段階に分けます。
-
-     境界：
-
-     -256 ～ -161
-     -160 ～ -65
-     -64 ～ 31
-      32 ～ 127
-     128 ～ 223
-     224 ～ 319
-     320 ～ 415
-     416 ～ 512
-  */
-
-  if (
-    currentScore <= -161
-  ) {
-
-    return "カニの食べられないところ";
-
-  }
-
-
-  if (
-    currentScore <= -65
-  ) {
-
-    return "壊れたブンブンチョッパー";
-
-  }
-
-
-  if (
-    currentScore <= 31
-  ) {
-
-    return "インド象を見てるガキ";
-
-  }
-
-
-  if (
-    currentScore <= 127
-  ) {
-
-    return "インディーズバンドドラム担当";
-
-  }
-
-
-  if (
-    currentScore <= 223
-  ) {
-
-    return "勝ち気で陽気なホームレス";
-
-  }
-
-
-  if (
-    currentScore <= 319
-  ) {
-
-    return "BOOKOFFせどりのプロ";
-
-  }
-
-
-  if (
-    currentScore <= 415
-  ) {
-
-    return "激エロのモロホスト";
-
-  }
-
-
-  return "も";
-
-}
-
-
-/* =========================================
-   ★ 1ラウンド実行
-========================================= */
-
-function playRound(
-  playerHand
-) {
-
-  /*
-     ====================================
-     高速連打対策
-
-     すでに処理中なら何もしない。
-
-     これが今回の重要な修正点です。
-     ====================================
-  */
-
-  if (
-    isProcessing ||
-    gameOver
-  ) {
-
-    return;
-
-  }
+  cpuHandElement.innerHTML =
+    `<span class="question-mark">?</span>`;
 
 
   /*
-     選択した手が残っているか確認
-  */
+   * モーダルを閉じる
+   */
+  doubleUpModal.classList.remove(
+    "active"
+  );
 
-  if (
-    !playerStock[playerHand] ||
-    playerStock[playerHand] <= 0
-  ) {
-
-    return;
-
-  }
-
-
-  /*
-     フレネミーの手を取得
-  */
-
-  const cpuHand =
-    getCpuHand();
-
-
-  if (!cpuHand) {
-
-    return;
-
-  }
-
-
-  /*
-     ====================================
-     ここからラウンド処理開始
-
-     この瞬間から次の入力を
-     受け付けないようにします。
-     ====================================
-  */
-
-  isProcessing = true;
-
-
-  updateDisplay();
-
-
-  /*
-     BGM開始
-  */
-
-  startBGM();
-
-
-  /* -------------------------
-     使用回数を減らす
-  ------------------------- */
-
-  playerStock[playerHand]--;
-
-  cpuStock[cpuHand]--;
-
-
-  /* -------------------------
-     手を表示
-  ------------------------- */
-
-  showHand(
-    playerHandElement,
-    playerHand
+  resultModal.classList.remove(
+    "active"
   );
 
 
-  showHand(
-    cpuHandElement,
-    cpuHand
-  );
+  document.body.style.overflow =
+    "";
 
-
-  /* -------------------------
-     勝敗判定
-  ------------------------- */
-
-  const result =
-    judge(
-      playerHand,
-      cpuHand
-    );
-
-
-  let points = 0;
-
-
-  /* =================================
-     勝ち
-
-     ★ 勝利点は倍率 × 2
-  ================================= */
-
-  if (
-    result === "win"
-  ) {
-
-    points =
-      multiplier * 2;
-
-
-    score += points;
-
-
-    playerWins++;
-
-
-    playSE(
-      "roundWin"
-    );
-
-
-    showResult(
-      "win",
-      points
-    );
-
-
-    /*
-       勝負がついたので
-       倍率を1へ戻す
-    */
-
-    multiplier = 1;
-
-  }
-
-
-  /* =================================
-     負け
-
-     倍率 × 1点を失う
-  ================================= */
-
-  else if (
-    result === "lose"
-  ) {
-
-    points =
-      multiplier;
-
-
-    score -= points;
-
-
-    cpuWins++;
-
-
-    playSE(
-      "roundLose"
-    );
-
-
-    showResult(
-      "lose",
-      points
-    );
-
-
-    /*
-       勝負がついたので
-       倍率を1へ戻す
-    */
-
-    multiplier = 1;
-
-  }
-
-
-  /* =================================
-     あいこ
-  ================================= */
-
-  else {
-
-    draws++;
-
-
-    multiplier *= 2;
-
-
-    playSE(
-      "draw"
-    );
-
-
-    showResult(
-      "draw",
-      0
-    );
-
-  }
-
-
-  /* -------------------------
-     倍率アニメーション
-  ------------------------- */
-
-  if (
-    result === "draw"
-  ) {
-
-    multiplierElement.classList.remove(
-      "multiplier-active"
-    );
-
-
-    void multiplierElement.offsetWidth;
-
-
-    multiplierElement.classList.add(
-      "multiplier-active"
-    );
-
-  }
-
-
-  /* -------------------------
-     画面更新
-  ------------------------- */
-
-  updateDisplay();
-
-
-  /* =================================
-     9ラウンド目
-  ================================= */
-
-  if (
-    round >= MAX_ROUNDS
-  ) {
-
-    /*
-       これ以上の入力を
-       完全に受け付けない。
-    */
-
-    gameOver = true;
-
-
-    updateDisplay();
-
-
-    /*
-       ここでは round++ しません。
-
-       9 / 9 の状態を維持したまま
-       結果発表へ進みます。
-    */
-
-    setTimeout(
-      () => {
-
-        endGame();
-
-      },
-      900
-    );
-
-
-    return;
-
-  }
-
-
-  /* =================================
-     次のラウンド
-  ================================= */
-
-  setTimeout(
-    () => {
-
-      round++;
-
-
-      /*
-         次のラウンドに進むまで
-         入力ロックを解除しない。
-
-         これによって、
-         高速連打でも
-         ラウンドが飛びません。
-      */
-
-      isProcessing = false;
-
-
-      updateDisplay();
-
-    },
-    650
-  );
-
-}
-
-
-/* =========================================
-   ゲーム終了
-========================================= */
-
-function endGame() {
 
   /*
-     二重実行防止
-  */
+   * ダも"ルアップ表示を初期化
+   */
+  highLowMessageElement.textContent =
+    "運命を選べ。";
 
-  if (
-    endGameStarted
-  ) {
-
-    return;
-
-  }
+  highLowMessageElement.className =
+    "high-low-message";
 
 
-  endGameStarted = true;
+  updateDoubleUpScore();
+
+  updateDoubleUpProgress();
 
 
-  gameOver = true;
-
-  isProcessing = true;
-
-
-  let finalResult = "";
-
-
-  /* -------------------------
-     最終結果
-  ------------------------- */
-
-  if (
-    score > 0
-  ) {
-
-    finalResult =
-      "🏆 貴様の勝利！";
-
-
-    playSE(
-      "finalWin"
-    );
-
-  }
-
-
-  else if (
-    score < 0
-  ) {
-
-    finalResult =
-      "💀 フレネミーの勝利…";
-
-
-    playSE(
-      "finalLose"
-    );
-
-  }
-
-
-  else {
-
-    finalResult =
-      "🤝 引き分け！";
-
-  }
-
-
-  /* -------------------------
-     BGM停止
-  ------------------------- */
-
+  /*
+   * BGM停止
+   */
   stopBGM();
 
 
-  /* -------------------------
-     称号取得
-  ------------------------- */
-
-  const finalTitle =
-    getTitleByScore(
-      score
-    );
-
-
-  /* -------------------------
-     最終結果表示
-  ------------------------- */
-
-  document.getElementById(
-    "final-result"
-  ).textContent =
-    finalResult;
-
-
-  document.getElementById(
-    "final-title"
-  ).textContent =
-    finalTitle;
-
-
-  document.getElementById(
-    "final-score"
-  ).textContent =
-    score;
-
-
-  document.getElementById(
-    "final-player-wins"
-  ).textContent =
-    playerWins;
-
-
-  document.getElementById(
-    "final-cpu-wins"
-  ).textContent =
-    cpuWins;
-
-
-  document.getElementById(
-    "final-draws"
-  ).textContent =
-    draws;
-
-
-  /* -------------------------
-     モーダル表示
-  ------------------------- */
-
-  gameOverModal.classList.remove(
-    "hidden"
-  );
-
-
+  /*
+   * 表示更新
+   */
   updateDisplay();
 
 }
 
 
-/* =========================================
-   ボタンイベント
-========================================= */
+/* =========================================================
+   じゃんけんボタン
+========================================================= */
 
-rockButton.addEventListener(
-  "click",
-  () => {
+choiceButtons.forEach(button => {
 
-    playRound(
-      "rock"
-    );
-
-  }
-);
-
-
-scissorsButton.addEventListener(
-  "click",
-  () => {
-
-    playRound(
-      "scissors"
-    );
-
-  }
-);
-
-
-paperButton.addEventListener(
-  "click",
-  () => {
-
-    playRound(
-      "paper"
-    );
-
-  }
-);
-
-
-/* =========================================
-   リスタート
-========================================= */
-
-document
-  .getElementById(
-    "restartButton"
-  )
-  .addEventListener(
+  button.addEventListener(
     "click",
     () => {
 
-      initializeGame();
+      const hand =
+        button.dataset.hand;
+
+      playRound(hand);
 
     }
   );
 
+});
 
-/* =========================================
-   ゲーム開始
-========================================= */
+
+/* =========================================================
+   HIGH / LOWボタン
+========================================================= */
+
+highButton.addEventListener(
+  "click",
+  () => {
+
+    playHighLow("high");
+
+  }
+);
+
+
+lowButton.addEventListener(
+  "click",
+  () => {
+
+    playHighLow("low");
+
+  }
+);
+
+
+/* =========================================================
+   リスタート
+========================================================= */
+
+restartButton.addEventListener(
+  "click",
+  () => {
+
+    initializeGame();
+
+  }
+);
+
+
+/* =========================================================
+   初期化
+========================================================= */
 
 initializeGame();

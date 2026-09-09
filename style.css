@@ -1,616 +1,382 @@
-/* =========================================
+/* =========================================================
    基本設定
-========================================= */
+========================================================= */
 
 * {
   box-sizing: border-box;
 }
 
-html {
+html,
+body {
+  margin: 0;
+  padding: 0;
   min-height: 100%;
 }
 
 body {
-  margin: 0;
-
-  min-height: 100vh;
-
   font-family:
     -apple-system,
     BlinkMacSystemFont,
-    "Segoe UI",
+    "Helvetica Neue",
     "Hiragino Kaku Gothic ProN",
     "Yu Gothic",
+    YuGothic,
     Meiryo,
     sans-serif;
 
   background:
-    linear-gradient(
-      135deg,
-      #f5f7ff 0%,
-      #f8f7ff 50%,
-      #f4fbff 100%
-    );
+    radial-gradient(circle at top, #ffffff 0%, #f4f4f4 55%, #eaeaea 100%);
 
-  color: #18213d;
+  color: #111;
+
+  -webkit-tap-highlight-color: transparent;
 }
 
 
-/* =========================================
-   メイン
-========================================= */
+/* =========================================================
+   ゲーム全体
+========================================================= */
 
 .game-container {
-  width:
-    min(
-      1100px,
-      calc(100% - 32px)
-    );
-
+  width: min(100%, 980px);
   margin: 0 auto;
-
-  padding:
-    28px 0 50px;
+  padding: 24px 20px 50px;
 }
 
 
-/* =========================================
-   タイトル
-========================================= */
+/* =========================================================
+   ヘッダー
+========================================================= */
 
 .game-header {
   text-align: center;
-
   margin-bottom: 22px;
+}
+
+.title-decoration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
 }
 
 .game-title {
   margin: 0;
 
-  display: flex;
+  font-size: clamp(52px, 9vw, 105px);
+  line-height: 0.95;
+  font-weight: 1000;
+  letter-spacing: -0.08em;
 
-  justify-content: center;
-
-  align-items: center;
-
-  gap: 16px;
-
-  font-size:
-    clamp(
-      48px,
-      7vw,
-      78px
-    );
-
-  line-height: 1.1;
-
-  font-weight: 900;
-
-  letter-spacing: 3px;
-
-  color: #18213d;
+  color: #111;
 
   text-shadow:
-    3px 4px 0 #ffffff;
+    3px 3px 0 #fff,
+    6px 6px 0 #111;
 }
 
 .title-hand {
-  width: 65px;
-
-  height: 65px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  flex-shrink: 0;
-}
-
-.title-hand img {
-  width: 100%;
-
-  height: 100%;
-
+  width: clamp(45px, 8vw, 80px);
+  height: clamp(45px, 8vw, 80px);
   object-fit: contain;
 }
+
 
 .round-badge {
   display: inline-block;
 
-  margin-top: 14px;
-
-  padding:
-    8px 20px;
+  margin-top: 18px;
+  padding: 8px 18px;
 
   border-radius: 999px;
 
-  background: #e9edff;
+  background: #111;
+  color: #fff;
 
-  color: #4b57d8;
-
+  font-size: 14px;
   font-weight: 900;
-
-  font-size: 15px;
-
-  letter-spacing: 0.5px;
+  letter-spacing: 0.12em;
 }
 
 
-/* =========================================
+/* =========================================================
    スコア・倍率
-========================================= */
+========================================================= */
 
 .top-status {
   display: grid;
-
-  grid-template-columns:
-    1fr 1fr;
-
-  gap: 18px;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 
   margin-bottom: 18px;
 }
 
 .status-card {
-  min-height: 92px;
+  background: rgba(255, 255, 255, 0.9);
 
-  display: flex;
-
-  flex-direction: column;
-
-  justify-content: center;
-
-  align-items: center;
-
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.96
-    );
-
-  border:
-    1px solid #dfe3ec;
-
+  border: 2px solid #111;
   border-radius: 18px;
 
-  box-shadow:
-    0 7px 20px
-    rgba(
-      45,
-      58,
-      95,
-      0.08
-    );
+  padding: 14px 18px;
+
+  text-align: center;
+
+  box-shadow: 0 5px 0 #111;
 }
 
 .status-label {
-  font-size: 13px;
-
-  font-weight: 800;
-
-  color: #65708a;
-
-  margin-bottom: 4px;
-}
-
-.status-value {
-  font-size: 30px;
-
+  font-size: 12px;
   font-weight: 900;
-
-  color: #17203a;
+  letter-spacing: 0.16em;
 }
 
-.multiplier-card
 .status-value {
+  margin-top: 3px;
+
+  font-size: 34px;
+  font-weight: 1000;
+}
+
+.multiplier-card {
   transition:
-    transform 0.2s ease;
+    transform 0.15s ease,
+    background 0.15s ease;
 }
 
 .multiplier-active {
-  animation:
-    multiplierPulse
-    0.5s ease;
+  animation: multiplierPulse 0.45s ease;
 }
 
 @keyframes multiplierPulse {
-
   0% {
     transform: scale(1);
   }
 
-  50% {
-    transform: scale(1.25);
+  40% {
+    transform: scale(1.08);
   }
 
   100% {
     transform: scale(1);
   }
-
 }
 
 
-/* =========================================
-   プレイヤー情報
-========================================= */
+/* =========================================================
+   プレイヤーエリア
+========================================================= */
 
 .players-area {
   display: grid;
-
-  grid-template-columns:
-    1fr 40px 1fr;
-
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-
-  gap: 10px;
+  gap: 14px;
 
   margin-bottom: 18px;
 }
 
 .player-card {
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.96
-    );
+  background: #fff;
 
-  border:
-    1px solid #dfe3ec;
-
+  border: 2px solid #111;
   border-radius: 18px;
 
-  padding:
-    17px 20px;
+  padding: 14px;
 
-  box-shadow:
-    0 7px 20px
-    rgba(
-      45,
-      58,
-      95,
-      0.08
-    );
-}
-
-.player-card-you {
-  border-top:
-    5px solid #2f80ed;
-}
-
-.player-card-cpu {
-  border-top:
-    5px solid #6850df;
+  box-shadow: 0 5px 0 #111;
 }
 
 .player-name {
   text-align: center;
 
+  font-size: 20px;
+  font-weight: 1000;
+
+  margin-bottom: 10px;
+}
+
+.versus-small {
   font-size: 18px;
-
-  font-weight: 900;
-
-  margin-bottom: 13px;
+  font-weight: 1000;
 }
 
 .stock-list {
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, 1fr);
-
-  gap: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
 }
 
 .stock-item {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 
-  min-width: 0;
+  min-width: 48px;
 }
 
 .stock-item img {
-  width: 43px;
-
-  height: 43px;
-
+  width: 38px;
+  height: 38px;
   object-fit: contain;
-
-  display: block;
-
-  margin:
-    0 auto 2px;
 }
 
-.stock-name {
-  font-size: 12px;
-
-  color: #65708a;
-
-  font-weight: 700;
-}
-
-.stock-count {
-  font-size: 17px;
-
-  font-weight: 900;
-
-  margin-top: 2px;
-}
-
-.vs-small {
-  text-align: center;
-
-  font-size: 17px;
-
-  font-weight: 900;
-
-  color: #68718b;
+.stock-item span {
+  font-size: 16px;
+  font-weight: 1000;
 }
 
 
-/* =========================================
-   バトルエリア
-========================================= */
+/* =========================================================
+   バトルカード
+========================================================= */
 
 .battle-card {
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.97
-    );
+  background: #fff;
 
-  border:
-    1px solid #dfe3ec;
+  border: 2px solid #111;
+  border-radius: 24px;
 
-  border-radius: 20px;
+  padding: 22px;
 
-  padding:
-    24px 20px 20px;
-
-  box-shadow:
-    0 8px 22px
-    rgba(
-      45,
-      58,
-      95,
-      0.09
-    );
+  box-shadow: 0 6px 0 #111;
 
   margin-bottom: 18px;
 }
 
 .battle-players {
   display: grid;
-
-  grid-template-columns:
-    1fr 70px 1fr;
-
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
+
+  gap: 20px;
 }
 
-.battle-side {
+.battle-player {
   text-align: center;
 }
 
 .battle-name {
-  display: inline-block;
-
-  min-width: 100px;
-
-  padding:
-    6px 16px;
-
-  border-radius: 999px;
-
-  background: #e8f1ff;
-
-  color: #2878dd;
-
-  font-weight: 900;
+  font-size: 15px;
+  font-weight: 1000;
 
   margin-bottom: 8px;
 }
 
-.battle-side:last-child
-.battle-name {
-  background: #eeeaff;
-
-  color: #624dd5;
-}
-
 .battle-hand {
-  height: 120px;
+  height: 170px;
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
-  font-size: 72px;
-
-  font-weight: 900;
-
-  color: #b7bfd2;
-
-  transition:
-    transform 0.25s ease,
-    opacity 0.25s ease;
-}
-
-.battle-hand img {
-  width: 115px;
-
-  height: 115px;
-
-  object-fit: contain;
-
-  animation:
-    handAppear
-    0.35s ease;
-}
-
-@keyframes handAppear {
-
-  0% {
-    transform:
-      scale(0.55)
-      rotate(-8deg);
-
-    opacity: 0;
-  }
-
-  70% {
-    transform:
-      scale(1.08)
-      rotate(2deg);
-  }
-
-  100% {
-    transform:
-      scale(1)
-      rotate(0deg);
-
-    opacity: 1;
-  }
-
-}
-
-.battle-vs {
-  text-align: center;
-
-  font-size: 26px;
-
-  font-weight: 900;
-
-  color: #56617e;
-}
-
-
-/* =========================================
-   結果表示
-========================================= */
-
-.result-message {
-  margin-top: 8px;
-
-  min-height: 56px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  border-radius: 15px;
-
-  background: #f3f5f8;
-
-  font-size: 22px;
-
-  font-weight: 900;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-.result-win {
-  background: #e7f8ec;
-
-  color: #17813c;
-
-  animation:
-    resultPop
-    0.35s ease;
-}
-
-.result-lose {
-  background: #fff0f0;
-
-  color: #d33131;
-
-  animation:
-    resultPop
-    0.35s ease;
-}
-
-.result-draw {
-  background: #fff7df;
-
-  color: #a66a00;
-
-  animation:
-    resultPop
-    0.35s ease;
-}
-
-@keyframes resultPop {
-
-  0% {
-    transform: scale(0.96);
-  }
-
-  60% {
-    transform: scale(1.03);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-
-}
-
-.points-message {
-  text-align: center;
-
-  min-height: 25px;
-
-  margin-top: 8px;
-
-  font-size: 15px;
-
-  font-weight: 800;
-
-  color: #65708a;
-}
-
-
-/* =========================================
-   手の選択
-========================================= */
-
-.choice-card {
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.97
-    );
-
-  border:
-    1px solid #dfe3ec;
 
   border-radius: 20px;
 
+  background:
+    linear-gradient(
+      145deg,
+      #fafafa,
+      #eeeeee
+    );
+
+  border: 2px dashed #bbb;
+}
+
+.battle-hand img {
+  width: min(150px, 70%);
+  height: min(150px, 70%);
+
+  object-fit: contain;
+}
+
+.question-mark {
+  font-size: 70px;
+  font-weight: 1000;
+  color: #aaa;
+}
+
+.battle-vs {
+  font-size: 24px;
+  font-weight: 1000;
+}
+
+
+/* =========================================================
+   結果表示
+========================================================= */
+
+.result-area {
+  text-align: center;
+
+  min-height: 75px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  margin-top: 16px;
+}
+
+.result-message {
+  font-size: clamp(22px, 5vw, 34px);
+  font-weight: 1000;
+}
+
+.result-win {
+  color: #087f23;
+  animation: resultPop 0.35s ease;
+}
+
+.result-lose {
+  color: #b00020;
+  animation: resultPop 0.35s ease;
+}
+
+.result-draw {
+  color: #555;
+  animation: resultPop 0.35s ease;
+}
+
+@keyframes resultPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+
+  70% {
+    transform: scale(1.12);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.points-message {
+  min-height: 25px;
+
+  margin-top: 4px;
+
+  font-size: 17px;
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   手の選択
+========================================================= */
+
+.choice-card {
+  background: #fff;
+
+  border: 2px solid #111;
+  border-radius: 24px;
+
   padding: 20px;
 
-  box-shadow:
-    0 8px 22px
-    rgba(
-      45,
-      58,
-      95,
-      0.09
-    );
+  box-shadow: 0 6px 0 #111;
 
   margin-bottom: 18px;
 }
@@ -618,651 +384,819 @@ body {
 .choice-title {
   text-align: center;
 
-  font-size: 15px;
+  font-size: 20px;
+  font-weight: 1000;
 
-  font-weight: 900;
-
-  color: #63708d;
-
-  margin-bottom: 14px;
+  margin-bottom: 15px;
 }
 
 .choice-buttons {
   display: grid;
-
-  grid-template-columns:
-    repeat(3, 1fr);
-
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
 }
 
 .choice-button {
-  position: relative;
+  appearance: none;
+  border: 2px solid #111;
 
-  border:
-    3px solid transparent;
+  background: #fff;
 
   border-radius: 18px;
 
-  min-height: 160px;
-
-  padding:
-    15px 10px;
+  min-height: 155px;
 
   cursor: pointer;
 
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   justify-content: center;
 
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    opacity 0.15s ease;
+  gap: 7px;
 
-  font-family: inherit;
+  font: inherit;
+  font-weight: 1000;
+
+  box-shadow: 0 5px 0 #111;
+
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    opacity 0.15s ease;
 }
 
 .choice-button:hover:not(:disabled) {
-  transform:
-    translateY(-4px);
-
-  box-shadow:
-    0 10px 20px
-    rgba(
-      45,
-      58,
-      95,
-      0.14
-    );
+  transform: translateY(-3px);
+  box-shadow: 0 8px 0 #111;
 }
 
 .choice-button:active:not(:disabled) {
-  transform:
-    translateY(0)
-    scale(0.98);
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #111;
 }
 
 .choice-button img {
-  width: 75px;
-
-  height: 75px;
+  width: 85px;
+  height: 85px;
 
   object-fit: contain;
-
-  margin-bottom: 5px;
-
-  transition:
-    transform 0.2s ease;
 }
 
-.choice-button:hover:not(:disabled)
-img {
-  transform:
-    scale(1.08)
-    rotate(-2deg);
+.choice-button span {
+  font-size: 17px;
 }
-
-
-/* グー */
-
-.choice-rock {
-  background:
-    linear-gradient(
-      145deg,
-      #eee9ff,
-      #ddd5ff
-    );
-
-  border-color: #7354dd;
-}
-
-.choice-rock .choice-name {
-  color: #5134bf;
-}
-
-
-/* チョキ */
-
-.choice-scissors {
-  background:
-    linear-gradient(
-      145deg,
-      #fff4bd,
-      #ffe28a
-    );
-
-  border-color: #e5a800;
-}
-
-.choice-scissors .choice-name {
-  color: #8e6500;
-}
-
-
-/* パー */
-
-.choice-paper {
-  background:
-    linear-gradient(
-      145deg,
-      #cffff0,
-      #a8efc5
-    );
-
-  border-color: #24a14d;
-}
-
-.choice-paper .choice-name {
-  color: #147332;
-}
-
-
-.choice-name {
-  font-size: 18px;
-
-  font-weight: 900;
-}
-
-.choice-count {
-  margin-top: 5px;
-
-  font-size: 12px;
-
-  color: #66708a;
-
-  font-weight: 700;
-}
-
-
-/* =========================================
-   使用回数ゼロ・処理中
-========================================= */
 
 .choice-button:disabled {
+  opacity: 0.3;
   cursor: not-allowed;
-
-  opacity: 0.35;
-
-  filter:
-    grayscale(0.6);
-
-  transform: none;
-
-  box-shadow: none;
+  filter: grayscale(1);
+  box-shadow: 0 2px 0 #777;
 }
-
-
-/*
-   ラウンド処理中。
-   スマホの高速連打時にも
-   入力中であることを視覚的に示す。
-*/
 
 .choice-button.processing {
-  cursor: wait;
-
-  opacity: 0.6;
+  pointer-events: none;
 }
 
 
-/* =========================================
+/* =========================================================
    ルール
-========================================= */
+========================================================= */
 
 .rule-card {
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.8
-    );
+  background: #fff;
 
-  border:
-    1px solid #e1e5ee;
+  border: 2px solid #ddd;
+  border-radius: 18px;
 
-  border-radius: 16px;
+  padding: 18px 20px;
 
-  padding:
-    17px 20px;
-
-  color: #68738d;
+  color: #444;
 }
 
-.rule-title {
-  font-size: 15px;
+.rule-card h2 {
+  margin: 0 0 10px;
 
-  font-weight: 900;
-
-  color: #46516e;
-
-  margin-bottom: 8px;
+  font-size: 17px;
+  color: #111;
 }
 
-.rule-text {
-  font-size: 12px;
-
-  line-height: 1.8;
-}
-
-.rule-text p {
+.rule-card ul {
   margin: 0;
+  padding-left: 20px;
+}
+
+.rule-card li {
+  margin: 6px 0;
+
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 
-/* =========================================
-   ゲーム終了モーダル
-========================================= */
+/* =========================================================
+   ダも"ルアップ モーダル
+========================================================= */
 
-.modal {
+.double-up-modal {
   position: fixed;
 
   inset: 0;
 
   z-index: 1000;
 
-  display: flex;
+  display: none;
 
   align-items: center;
-
   justify-content: center;
 
-  padding: 20px;
+  padding: 16px;
 
   background:
-    rgba(
-      19,
-      26,
-      49,
-      0.58
+    radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.97),
+      rgba(245, 245, 245, 0.98)
     );
-
-  backdrop-filter:
-    blur(5px);
-}
-
-.modal.hidden {
-  display: none;
-}
-
-.modal-content {
-  width:
-    min(
-      460px,
-      100%
-    );
-
-  max-height:
-    calc(100vh - 30px);
 
   overflow-y: auto;
-
-  background: white;
-
-  border-radius: 25px;
-
-  padding:
-    32px 25px;
-
-  text-align: center;
-
-  box-shadow:
-    0 20px 60px
-    rgba(
-      20,
-      27,
-      55,
-      0.3
-    );
-
-  animation:
-    modalAppear
-    0.35s ease;
 }
 
-@keyframes modalAppear {
+.double-up-modal.active {
+  display: flex;
 
+  animation: modalFadeIn 0.35s ease;
+}
+
+@keyframes modalFadeIn {
   from {
     opacity: 0;
-
-    transform:
-      translateY(20px)
-      scale(0.95);
   }
 
   to {
     opacity: 1;
+  }
+}
 
-    transform:
-      translateY(0)
-      scale(1);
+.double-up-content {
+  position: relative;
+
+  width: min(560px, 100%);
+
+  padding: 28px 24px 25px;
+
+  background: #fff;
+
+  border: 3px solid #111;
+  border-radius: 28px;
+
+  box-shadow:
+    0 10px 0 #111,
+    0 30px 80px rgba(0, 0, 0, 0.18);
+
+  text-align: center;
+
+  overflow: hidden;
+
+  animation: doubleUpEnter 0.5s cubic-bezier(.2,.9,.2,1);
+}
+
+@keyframes doubleUpEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.75) translateY(35px);
   }
 
+  70% {
+    transform: scale(1.03) translateY(-3px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
-.modal-title {
-  font-size: 28px;
+.double-up-glow {
+  position: absolute;
+
+  width: 300px;
+  height: 300px;
+
+  left: 50%;
+  top: 42%;
+
+  transform: translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 214, 0, 0.28),
+      rgba(255, 214, 0, 0)
+    );
+
+  pointer-events: none;
+}
+
+.double-up-eyebrow {
+  position: relative;
+
+  font-size: 11px;
+  font-weight: 1000;
+  letter-spacing: 0.13em;
+
+  color: #777;
+}
+
+.double-up-title {
+  position: relative;
+
+  margin: 7px 0 4px;
+
+  font-size: clamp(38px, 9vw, 60px);
+  line-height: 0.95;
+
+  font-weight: 1000;
+
+  letter-spacing: -0.06em;
+
+  color: #111;
+
+  text-shadow:
+    2px 2px 0 #fff,
+    4px 4px 0 #f2cf00;
+}
+
+.double-up-title span {
+  font-size: 0.82em;
+}
+
+.double-up-subtitle {
+  position: relative;
+
+  margin: 10px 0 14px;
 
   font-weight: 900;
-
-  margin-bottom: 12px;
+  color: #555;
 }
 
-.final-result {
-  font-size: 25px;
+.double-up-score-label {
+  position: relative;
 
-  font-weight: 900;
-
-  margin-bottom: 18px;
-}
-
-
-/* =========================================
-   称号
-========================================= */
-
-.title-label {
   font-size: 12px;
-
   font-weight: 900;
-
-  color: #77819a;
-
-  margin-bottom: 5px;
+  letter-spacing: 0.1em;
 }
 
-.final-title {
+.double-up-score {
+  position: relative;
+
+  font-size: clamp(38px, 9vw, 58px);
+  font-weight: 1000;
+
+  margin: 2px 0 8px;
+
+  transition: transform 0.2s ease;
+}
+
+.double-up-score.score-doubled {
+  animation: scoreDouble 0.55s ease;
+}
+
+@keyframes scoreDouble {
+  0% {
+    transform: scale(1);
+  }
+
+  35% {
+    transform: scale(1.3) rotate(-2deg);
+  }
+
+  60% {
+    transform: scale(0.94) rotate(1deg);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.double-up-progress {
   display: inline-block;
 
-  padding:
-    8px 16px;
-
-  margin-bottom: 20px;
+  padding: 6px 13px;
 
   border-radius: 999px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #f0ecff,
-      #e7f1ff
-    );
+  background: #111;
+  color: #fff;
 
-  color: #4d42a6;
+  font-size: 12px;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
 
-  font-size: 17px;
+  margin-bottom: 15px;
+}
 
-  line-height: 1.4;
 
-  font-weight: 900;
+/* =========================================================
+   トランプ
+========================================================= */
+
+.card-area {
+  position: relative;
+
+  min-height: 210px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  perspective: 1000px;
+
+  margin-bottom: 8px;
+}
+
+.playing-card {
+  position: relative;
+
+  width: 125px;
+  height: 175px;
+
+  border: 3px solid #111;
+  border-radius: 14px;
+
+  background: #fff;
 
   box-shadow:
-    0 4px 12px
-    rgba(
-      70,
-      75,
-      150,
-      0.08
-    );
+    0 7px 0 #111,
+    0 12px 20px rgba(0, 0, 0, 0.18);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transform-style: preserve-3d;
+
+  animation: cardAppear 0.45s ease;
 }
 
+@keyframes cardAppear {
+  0% {
+    opacity: 0;
+    transform: rotateY(90deg) scale(0.7);
+  }
 
-/* =========================================
-   最終スコア
-========================================= */
-
-.final-score-label {
-  font-size: 12px;
-
-  font-weight: 800;
-
-  color: #77819a;
+  100% {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+  }
 }
 
-.final-score {
-  font-size: 55px;
-
-  line-height: 1;
-
-  font-weight: 900;
-
-  margin:
-    7px 0 22px;
+.playing-card.card-flip {
+  animation: cardFlip 0.55s ease;
 }
 
+@keyframes cardFlip {
+  0% {
+    transform: rotateY(0deg);
+  }
 
-/* =========================================
-   最終戦績
-========================================= */
+  50% {
+    transform: rotateY(90deg) scale(0.9);
+  }
 
-.final-stats {
+  100% {
+    transform: rotateY(0deg);
+  }
+}
+
+.card-corner {
+  position: absolute;
+
+  display: flex;
+  flex-direction: column;
+
+  font-size: 21px;
+  line-height: 0.9;
+
+  font-weight: 1000;
+}
+
+.card-corner-top {
+  top: 10px;
+  left: 11px;
+}
+
+.card-corner-bottom {
+  right: 11px;
+  bottom: 10px;
+
+  transform: rotate(180deg);
+}
+
+.card-center {
+  font-size: 58px;
+  font-weight: 1000;
+}
+
+.high-low-question {
+  font-size: 17px;
+  font-weight: 1000;
+
+  margin-bottom: 11px;
+}
+
+.high-low-buttons {
+  position: relative;
+
   display: grid;
+  grid-template-columns: 1fr 1fr;
 
-  grid-template-columns:
-    repeat(3, 1fr);
-
-  gap: 8px;
-
-  margin-bottom: 24px;
+  gap: 12px;
 }
 
-.final-stats > div {
-  background: #f4f6fa;
+.high-low-button {
+  appearance: none;
 
-  border-radius: 12px;
+  border: 2px solid #111;
+  border-radius: 16px;
 
-  padding:
-    10px 5px;
+  background: #fff;
+
+  min-height: 68px;
+
+  cursor: pointer;
+
+  font: inherit;
+
+  box-shadow: 0 5px 0 #111;
+
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    opacity 0.15s ease;
 }
 
-.final-stats span {
+.high-low-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 0 #111;
+}
+
+.high-low-button:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #111;
+}
+
+.high-low-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.high-low-main {
+  display: block;
+
+  font-size: 24px;
+  font-weight: 1000;
+}
+
+.high-low-sub {
   display: block;
 
   font-size: 11px;
+  font-weight: 900;
 
-  color: #69738c;
+  margin-top: 1px;
 }
 
-.final-stats strong {
+.high-button .high-low-main {
+  color: #1474d4;
+}
+
+.low-button .high-low-main {
+  color: #d12a2a;
+}
+
+.high-low-message {
+  min-height: 24px;
+
+  margin-top: 12px;
+
+  font-size: 14px;
+  font-weight: 1000;
+}
+
+.high-low-message.success {
+  color: #087f23;
+
+  animation: resultPop 0.35s ease;
+}
+
+.high-low-message.failure {
+  color: #b00020;
+
+  animation: resultPop 0.35s ease;
+}
+
+
+/* =========================================================
+   結果モーダル
+========================================================= */
+
+.modal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 2000;
+
+  display: none;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.68);
+
+  overflow-y: auto;
+}
+
+.modal.active {
+  display: flex;
+
+  animation: modalFadeIn 0.3s ease;
+}
+
+.modal-content {
+  width: min(520px, 100%);
+
+  background: #fff;
+
+  border: 3px solid #111;
+  border-radius: 28px;
+
+  padding: 30px 25px;
+
+  text-align: center;
+
+  box-shadow:
+    0 10px 0 #111,
+    0 30px 70px rgba(0, 0, 0, 0.3);
+
+  animation: resultModalEnter 0.45s cubic-bezier(.2,.9,.2,1);
+}
+
+@keyframes resultModalEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.75) translateY(30px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.final-eyebrow {
+  font-size: 11px;
+  font-weight: 1000;
+  letter-spacing: 0.18em;
+  color: #777;
+}
+
+.modal-content h2 {
+  margin: 8px 0 20px;
+
+  font-size: 34px;
+  font-weight: 1000;
+}
+
+.final-title-label {
+  font-size: 12px;
+  font-weight: 900;
+  color: #777;
+}
+
+.final-title {
+  margin-top: 5px;
+
+  font-size: clamp(25px, 7vw, 38px);
+  line-height: 1.15;
+
+  font-weight: 1000;
+}
+
+.final-score-label {
+  margin-top: 22px;
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  color: #777;
+}
+
+.final-score {
+  margin-top: 2px;
+
+  font-size: 58px;
+  font-weight: 1000;
+}
+
+.final-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 9px;
+
+  margin: 18px 0;
+}
+
+.final-stat {
+  background: #f2f2f2;
+
+  border-radius: 12px;
+
+  padding: 10px;
+}
+
+.final-stat span {
   display: block;
 
-  font-size: 22px;
+  font-size: 11px;
+  font-weight: 900;
 
-  margin-top: 3px;
+  color: #666;
 }
 
+.final-stat strong {
+  display: block;
 
-/* =========================================
-   リスタート
-========================================= */
+  margin-top: 2px;
+
+  font-size: 22px;
+}
+
+.double-up-result {
+  min-height: 25px;
+
+  margin-bottom: 13px;
+
+  font-size: 13px;
+  font-weight: 1000;
+
+  color: #555;
+}
 
 .restart-button {
   width: 100%;
 
-  border: 0;
+  border: 2px solid #111;
+  border-radius: 15px;
 
-  border-radius: 14px;
+  background: #111;
+  color: #fff;
 
   padding: 15px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #347ff0,
-      #6152df
-    );
-
-  color: white;
-
-  font-size: 17px;
-
-  font-weight: 900;
+  font: inherit;
+  font-weight: 1000;
 
   cursor: pointer;
 
-  font-family: inherit;
+  box-shadow: 0 5px 0 #555;
 
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
 }
 
 .restart-button:hover {
-  transform:
-    translateY(-2px);
-
-  box-shadow:
-    0 8px 20px
-    rgba(
-      62,
-      87,
-      220,
-      0.25
-    );
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #555;
 }
 
 .restart-button:active {
-  transform:
-    scale(0.98);
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #555;
 }
 
 
-/* =========================================
-   スマートフォン
-========================================= */
+/* =========================================================
+   モバイル
+========================================================= */
 
 @media (max-width: 700px) {
 
   .game-container {
-    width:
-      min(
-        calc(100% - 18px),
-        560px
-      );
-
-    padding-top: 18px;
-
-    padding-bottom: 35px;
+    padding: 17px 12px 35px;
   }
 
+  .title-decoration {
+    gap: 8px;
+  }
 
   .game-title {
-    gap: 7px;
-
-    font-size:
-      clamp(
-        38px,
-        10vw,
-        52px
-      );
-
-    letter-spacing: 1px;
+    font-size: clamp(45px, 14vw, 75px);
   }
 
   .title-hand {
-    width: 42px;
-
-    height: 42px;
+    width: 43px;
+    height: 43px;
   }
-
-
-  .top-status {
-    gap: 9px;
-  }
-
-  .status-card {
-    min-height: 78px;
-
-    border-radius: 14px;
-  }
-
-  .status-value {
-    font-size: 25px;
-  }
-
 
   .players-area {
     grid-template-columns: 1fr;
-
-    gap: 7px;
+    gap: 8px;
   }
 
-  .vs-small {
-    display: none;
+  .versus-small {
+    text-align: center;
   }
 
   .player-card {
-    padding:
-      14px 10px;
-
-    border-radius: 15px;
+    padding: 11px;
   }
-
-  .player-name {
-    margin-bottom: 8px;
-  }
-
-  .stock-item img {
-    width: 38px;
-
-    height: 38px;
-  }
-
 
   .battle-card {
-    padding:
-      16px 10px;
-
-    border-radius: 16px;
+    padding: 14px 10px;
   }
 
   .battle-players {
-    grid-template-columns:
-      1fr 45px 1fr;
+    gap: 7px;
   }
 
   .battle-hand {
-    height: 90px;
-
-    font-size: 55px;
+    height: 135px;
   }
 
   .battle-hand img {
-    width: 85px;
+    width: 105px;
+    height: 105px;
+  }
 
-    height: 85px;
+  .question-mark {
+    font-size: 55px;
   }
 
   .battle-vs {
-    font-size: 20px;
-  }
-
-  .battle-name {
-    min-width: 80px;
-
-    padding:
-      5px 12px;
-
-    font-size: 13px;
-  }
-
-  .result-message {
     font-size: 18px;
-
-    min-height: 50px;
   }
 
+  .choice-button {
+    min-height: 125px;
+  }
 
-  .choice-card {
-    padding:
-      14px 8px;
+  .choice-button img {
+    width: 68px;
+    height: 68px;
+  }
 
-    border-radius: 16px;
+  .choice-button span {
+    font-size: 15px;
+  }
+
+  .double-up-content {
+    padding: 23px 15px 20px;
+  }
+
+  .playing-card {
+    width: 112px;
+    height: 158px;
+  }
+
+  .card-center {
+    font-size: 51px;
+  }
+
+  .card-corner {
+    font-size: 18px;
+  }
+
+}
+
+
+/* =========================================================
+   小さいスマホ
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .game-container {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .game-title {
+    font-size: 43px;
+  }
+
+  .title-hand {
+    width: 35px;
+    height: 35px;
   }
 
   .choice-buttons {
@@ -1270,103 +1204,25 @@ img {
   }
 
   .choice-button {
-    min-height: 130px;
-
-    padding:
-      9px 4px;
-
-    border-width: 2px;
-
+    min-height: 112px;
     border-radius: 14px;
   }
 
   .choice-button img {
     width: 58px;
-
     height: 58px;
   }
 
-  .choice-name {
-    font-size: 15px;
+  .choice-button span {
+    font-size: 13px;
   }
 
-  .choice-count {
-    font-size: 10px;
+  .double-up-title {
+    font-size: 40px;
   }
 
-
-  .rule-card {
-    padding: 14px;
-
-    border-radius: 14px;
-  }
-
-  .rule-text {
-    font-size: 11px;
-  }
-
-
-  .modal-content {
-    padding:
-      25px 18px;
-  }
-
-  .modal-title {
-    font-size: 24px;
-  }
-
-  .final-result {
-    font-size: 21px;
-  }
-
-  .final-title {
-    font-size: 15px;
-
-    padding:
-      7px 12px;
-  }
-
-  .final-score {
-    font-size: 45px;
-  }
-
-}
-
-
-/* =========================================
-   さらに小さいスマホ
-========================================= */
-
-@media (max-width: 380px) {
-
-  .game-title {
-    font-size: 34px;
-
-    gap: 4px;
-  }
-
-  .title-hand {
-    width: 32px;
-
-    height: 32px;
-  }
-
-  .choice-button {
-    min-height: 120px;
-  }
-
-  .choice-button img {
-    width: 50px;
-
-    height: 50px;
-  }
-
-  .choice-name {
-    font-size: 14px;
-  }
-
-  .choice-count {
-    font-size: 9px;
+  .high-low-button {
+    min-height: 62px;
   }
 
 }
