@@ -1,51 +1,33 @@
 /* =========================================
    も”ゃんけん
-   =========================================
-
-   【画像】
-
-   guu.png    → 紫 → グー
-   chyoki.png → 黄色 → チョキ
-   pa.png     → 緑 → パー
-
-
-   【音声】
-
-   bgm        → ゲーム中BGM
-   roundWin   → ラウンド勝利SE
-   roundLose  → ラウンド敗北SE
-   draw       → あいこSE
-   finalWin   → 最終結果勝利SE
-   finalLose  → 最終結果敗北SE
-
 ========================================= */
 
 
 /* =========================================
    ★ 音声ファイル設定 ★
 
-   音声ファイルを変更するときは
-   ここだけ書き換えてください。
+   ファイル名を変更する場合は
+   ここだけ変更してください。
 ========================================= */
 
 const AUDIO_FILES = {
 
-  // ゲーム中に流れるBGM
+  // ゲーム中BGM
   bgm: "bgm.mp3",
 
-  // 1ラウンド勝ったとき
+  // ラウンド勝利SE
   roundWin: "win.mp3",
 
-  // 1ラウンド負けたとき
+  // ラウンド敗北SE
   roundLose: "lose.mp3",
 
-  // 1ラウンドあいこのとき
+  // あいこSE
   draw: "draw.mp3",
 
-  // 9ラウンド終了後、最終的に勝ったとき
+  // 最終結果：勝利
   finalWin: "final-win.mp3",
 
-  // 9ラウンド終了後、最終的に負けたとき
+  // 最終結果：敗北
   finalLose: "final-lose.mp3"
 
 };
@@ -58,6 +40,33 @@ const AUDIO_FILES = {
 const MAX_ROUNDS = 9;
 
 const MAX_HAND_COUNT = 3;
+
+
+/*
+   スコアの理論上の最大・最小値
+
+   最大：
+   8回あいこ
+   ↓
+   ×256
+   ↓
+   最後に勝利
+   ↓
+   256 × 2 = +512
+
+   最小：
+   8回あいこ
+   ↓
+   ×256
+   ↓
+   最後に敗北
+   ↓
+   -256
+*/
+
+const MIN_SCORE = -256;
+
+const MAX_SCORE = 512;
 
 
 /* =========================================
@@ -107,28 +116,65 @@ let draws;
 let gameOver;
 
 
+/*
+   ★ 高速連打対策
+
+   1ラウンド処理中は true にします。
+
+   true の間は新しい手を選択できません。
+
+   これによりスマホなどで
+   高速連打しても、
+   1回のクリックにつき
+   1ラウンドだけ処理されます。
+*/
+
+let isProcessing = false;
+
+
+/*
+   ゲーム終了処理が
+   二重に実行されるのを防止
+*/
+
+let endGameStarted = false;
+
+
 /* =========================================
    音声オブジェクト
 ========================================= */
 
 const sounds = {
 
-  bgm: new Audio(AUDIO_FILES.bgm),
+  bgm:
+    new Audio(
+      AUDIO_FILES.bgm
+    ),
 
   roundWin:
-    new Audio(AUDIO_FILES.roundWin),
+    new Audio(
+      AUDIO_FILES.roundWin
+    ),
 
   roundLose:
-    new Audio(AUDIO_FILES.roundLose),
+    new Audio(
+      AUDIO_FILES.roundLose
+    ),
 
   draw:
-    new Audio(AUDIO_FILES.draw),
+    new Audio(
+      AUDIO_FILES.draw
+    ),
 
   finalWin:
-    new Audio(AUDIO_FILES.finalWin),
+    new Audio(
+      AUDIO_FILES.finalWin
+    ),
 
   finalLose:
-    new Audio(AUDIO_FILES.finalLose)
+    new Audio(
+      AUDIO_FILES.finalLose
+    )
 
 };
 
@@ -139,10 +185,6 @@ const sounds = {
 
 sounds.bgm.loop = true;
 
-
-/*
-   音量設定
-*/
 
 sounds.bgm.volume = 0.35;
 
@@ -157,11 +199,88 @@ sounds.finalWin.volume = 1.0;
 sounds.finalLose.volume = 1.0;
 
 
-/*
-   BGMが再生できたかどうか
-*/
-
 let bgmStarted = false;
+
+
+/* =========================================
+   HTML要素
+========================================= */
+
+const scoreElement =
+  document.getElementById(
+    "score"
+  );
+
+
+const multiplierElement =
+  document.getElementById(
+    "multiplier"
+  );
+
+
+const roundNumberElement =
+  document.getElementById(
+    "roundNumber"
+  );
+
+
+const playerHandElement =
+  document.getElementById(
+    "player-hand"
+  );
+
+
+const cpuHandElement =
+  document.getElementById(
+    "cpu-hand"
+  );
+
+
+const resultMessageElement =
+  document.getElementById(
+    "result-message"
+  );
+
+
+const pointsMessageElement =
+  document.getElementById(
+    "points-message"
+  );
+
+
+const gameOverModal =
+  document.getElementById(
+    "gameOverModal"
+  );
+
+
+/* =========================================
+   ボタン
+========================================= */
+
+const rockButton =
+  document.getElementById(
+    "rockButton"
+  );
+
+
+const scissorsButton =
+  document.getElementById(
+    "scissorsButton"
+  );
+
+
+const paperButton =
+  document.getElementById(
+    "paperButton"
+  );
+
+
+const choiceButtons = [
+  rockButton,
+  scissorsButton,
+  paperButton
+];
 
 
 /* =========================================
@@ -185,22 +304,12 @@ function startBGM() {
     sounds.bgm.play();
 
 
-  /*
-    ブラウザによっては
-    play() がPromiseを返します。
-  */
-
   if (
     playPromise &&
     typeof playPromise.catch === "function"
   ) {
 
     playPromise.catch(() => {
-
-      /*
-        ブラウザの自動再生制限などで
-        再生できない場合は何もしません。
-      */
 
       bgmStarted = false;
 
@@ -232,18 +341,14 @@ function stopBGM() {
 
 function playSE(soundName) {
 
-  const sound = sounds[soundName];
+  const sound =
+    sounds[soundName];
 
 
   if (!sound) {
     return;
   }
 
-
-  /*
-    同じSEを連続再生できるように
-    毎回先頭へ戻します。
-  */
 
   sound.currentTime = 0;
 
@@ -260,9 +365,8 @@ function playSE(soundName) {
     playPromise.catch(() => {
 
       /*
-        音声ファイルがない場合や
-        ブラウザ側で再生できない場合でも
-        ゲーム自体は止めません。
+        音声が再生できなくても
+        ゲーム本体は停止しません。
       */
 
     });
@@ -273,35 +377,6 @@ function playSE(soundName) {
 
 
 /* =========================================
-   HTML要素
-========================================= */
-
-const scoreElement =
-  document.getElementById("score");
-
-const multiplierElement =
-  document.getElementById("multiplier");
-
-const roundNumberElement =
-  document.getElementById("roundNumber");
-
-const playerHandElement =
-  document.getElementById("player-hand");
-
-const cpuHandElement =
-  document.getElementById("cpu-hand");
-
-const resultMessageElement =
-  document.getElementById("result-message");
-
-const pointsMessageElement =
-  document.getElementById("points-message");
-
-const gameOverModal =
-  document.getElementById("gameOverModal");
-
-
-/* =========================================
    ゲーム初期化
 ========================================= */
 
@@ -309,22 +384,28 @@ function initializeGame() {
 
   playerStock = {
 
-    rock: MAX_HAND_COUNT,
+    rock:
+      MAX_HAND_COUNT,
 
-    scissors: MAX_HAND_COUNT,
+    scissors:
+      MAX_HAND_COUNT,
 
-    paper: MAX_HAND_COUNT
+    paper:
+      MAX_HAND_COUNT
 
   };
 
 
   cpuStock = {
 
-    rock: MAX_HAND_COUNT,
+    rock:
+      MAX_HAND_COUNT,
 
-    scissors: MAX_HAND_COUNT,
+    scissors:
+      MAX_HAND_COUNT,
 
-    paper: MAX_HAND_COUNT
+    paper:
+      MAX_HAND_COUNT
 
   };
 
@@ -343,34 +424,21 @@ function initializeGame() {
 
   gameOver = false;
 
+  isProcessing = false;
 
-  /*
-    前回のゲーム終了時に
-    BGMを止めます。
-  */
+  endGameStarted = false;
+
 
   stopBGM();
 
-
-  /*
-    終了画面を隠す
-  */
 
   gameOverModal.classList.add(
     "hidden"
   );
 
 
-  /*
-    対戦画面を初期状態へ
-  */
-
   resetBattleDisplay();
 
-
-  /*
-    画面更新
-  */
 
   updateDisplay();
 
@@ -396,7 +464,7 @@ function updateDisplay() {
 
 
   /* -------------------------
-     貴様の残り回数
+     貴様
   ------------------------- */
 
   document.getElementById(
@@ -418,7 +486,7 @@ function updateDisplay() {
 
 
   /* -------------------------
-     フレネミーの残り回数
+     フレネミー
   ------------------------- */
 
   document.getElementById(
@@ -443,41 +511,42 @@ function updateDisplay() {
      選択ボタン
   ------------------------- */
 
-  const rockButton =
-    document.getElementById(
-      "rockButton"
-    );
-
-
-  const scissorsButton =
-    document.getElementById(
-      "scissorsButton"
-    );
-
-
-  const paperButton =
-    document.getElementById(
-      "paperButton"
-    );
-
-
   rockButton.disabled =
     playerStock.rock <= 0 ||
-    gameOver;
+    gameOver ||
+    isProcessing;
 
 
   scissorsButton.disabled =
     playerStock.scissors <= 0 ||
-    gameOver;
+    gameOver ||
+    isProcessing;
 
 
   paperButton.disabled =
     playerStock.paper <= 0 ||
-    gameOver;
+    gameOver ||
+    isProcessing;
 
 
   /* -------------------------
-     ボタン内の回数
+     処理中クラス
+  ------------------------- */
+
+  choiceButtons.forEach(
+    button => {
+
+      button.classList.toggle(
+        "processing",
+        isProcessing
+      );
+
+    }
+  );
+
+
+  /* -------------------------
+     ボタン内残数
   ------------------------- */
 
   document.getElementById(
@@ -507,9 +576,11 @@ function updateDisplay() {
 function getCpuHand() {
 
   const availableHands =
-    Object.keys(cpuStock).filter(
-      hand => cpuStock[hand] > 0
-    );
+    Object.keys(cpuStock)
+      .filter(
+        hand =>
+          cpuStock[hand] > 0
+      );
 
 
   if (
@@ -539,13 +610,18 @@ function getCpuHand() {
    勝敗判定
 ========================================= */
 
-function judge(player, cpu) {
+function judge(
+  player,
+  cpu
+) {
 
   /*
-    あいこ
+     あいこ
   */
 
-  if (player === cpu) {
+  if (
+    player === cpu
+  ) {
 
     return "draw";
 
@@ -553,23 +629,29 @@ function judge(player, cpu) {
 
 
   /*
-    貴様の勝ち
+     貴様の勝ち
   */
 
   if (
 
-    (player === "rock" &&
-      cpu === "scissors")
+    (
+      player === "rock" &&
+      cpu === "scissors"
+    )
 
     ||
 
-    (player === "scissors" &&
-      cpu === "paper")
+    (
+      player === "scissors" &&
+      cpu === "paper"
+    )
 
     ||
 
-    (player === "paper" &&
-      cpu === "rock")
+    (
+      player === "paper" &&
+      cpu === "rock"
+    )
 
   ) {
 
@@ -579,7 +661,7 @@ function judge(player, cpu) {
 
 
   /*
-    貴様の負け
+     貴様の負け
   */
 
   return "lose";
@@ -601,18 +683,22 @@ function showHand(
     !HANDS[hand]
   ) {
 
-    element.textContent = "?";
+    element.textContent =
+      "?";
 
     return;
 
   }
 
 
-  element.innerHTML = "";
+  element.innerHTML =
+    "";
 
 
   const image =
-    document.createElement("img");
+    document.createElement(
+      "img"
+    );
 
 
   image.src =
@@ -645,7 +731,7 @@ function resetBattleDisplay() {
 
 
   resultMessageElement.textContent =
-    "手を選んでください";
+    "おい、選べる";
 
 
   resultMessageElement.className =
@@ -675,7 +761,9 @@ function showResult(
      勝ち
   ------------------------- */
 
-  if (result === "win") {
+  if (
+    result === "win"
+  ) {
 
     resultMessageElement.textContent =
       "🎉 貴様の勝ち！";
@@ -696,7 +784,9 @@ function showResult(
      負け
   ------------------------- */
 
-  else if (result === "lose") {
+  else if (
+    result === "lose"
+  ) {
 
     resultMessageElement.textContent =
       "💥 貴様の負け…";
@@ -737,33 +827,131 @@ function showResult(
 
 
 /* =========================================
-   1ラウンド実行
+   ★ スコアから称号を取得
+========================================= */
+
+function getTitleByScore(
+  currentScore
+) {
+
+  /*
+     -256 ～ +512 を
+     8段階に分けます。
+
+     境界：
+
+     -256 ～ -161
+     -160 ～ -65
+     -64 ～ 31
+      32 ～ 127
+     128 ～ 223
+     224 ～ 319
+     320 ～ 415
+     416 ～ 512
+  */
+
+  if (
+    currentScore <= -161
+  ) {
+
+    return "カニの食べられないところ";
+
+  }
+
+
+  if (
+    currentScore <= -65
+  ) {
+
+    return "壊れたブンブンチョッパー";
+
+  }
+
+
+  if (
+    currentScore <= 31
+  ) {
+
+    return "インド象を見てるガキ";
+
+  }
+
+
+  if (
+    currentScore <= 127
+  ) {
+
+    return "インディーズバンドドラム担当";
+
+  }
+
+
+  if (
+    currentScore <= 223
+  ) {
+
+    return "勝ち気で陽気なホームレス";
+
+  }
+
+
+  if (
+    currentScore <= 319
+  ) {
+
+    return "BOOKOFFせどりのプロ";
+
+  }
+
+
+  if (
+    currentScore <= 415
+  ) {
+
+    return "激エロのモロホスト";
+
+  }
+
+
+  return "も";
+
+}
+
+
+/* =========================================
+   ★ 1ラウンド実行
 ========================================= */
 
 function playRound(
   playerHand
 ) {
 
-  if (gameOver) {
+  /*
+     ====================================
+     高速連打対策
+
+     すでに処理中なら何もしない。
+
+     これが今回の重要な修正点です。
+     ====================================
+  */
+
+  if (
+    isProcessing ||
+    gameOver
+  ) {
+
     return;
+
   }
 
 
   /*
-    最初のユーザー操作で
-    BGMを開始します。
-
-    ブラウザの自動再生制限対策です。
+     選択した手が残っているか確認
   */
 
-  startBGM();
-
-
-  /* -------------------------
-     使用できる回数を確認
-  ------------------------- */
-
   if (
+    !playerStock[playerHand] ||
     playerStock[playerHand] <= 0
   ) {
 
@@ -772,9 +960,9 @@ function playRound(
   }
 
 
-  /* -------------------------
-     フレネミーの手を決定
-  ------------------------- */
+  /*
+     フレネミーの手を取得
+  */
 
   const cpuHand =
     getCpuHand();
@@ -785,6 +973,28 @@ function playRound(
     return;
 
   }
+
+
+  /*
+     ====================================
+     ここからラウンド処理開始
+
+     この瞬間から次の入力を
+     受け付けないようにします。
+     ====================================
+  */
+
+  isProcessing = true;
+
+
+  updateDisplay();
+
+
+  /*
+     BGM開始
+  */
+
+  startBGM();
 
 
   /* -------------------------
@@ -828,14 +1038,16 @@ function playRound(
 
   /* =================================
      勝ち
-     
-     ★ 変更点
-     勝利ポイントを +1 から +2 に変更
+
+     ★ 勝利点は倍率 × 2
   ================================= */
 
-  if (result === "win") {
+  if (
+    result === "win"
+  ) {
 
-    points = multiplier * 2;
+    points =
+      multiplier * 2;
 
 
     score += points;
@@ -844,11 +1056,9 @@ function playRound(
     playerWins++;
 
 
-    /*
-      勝利SE
-    */
-
-    playSE("roundWin");
+    playSE(
+      "roundWin"
+    );
 
 
     showResult(
@@ -858,8 +1068,8 @@ function playRound(
 
 
     /*
-      勝負がついたら
-      倍率を1倍へ戻す
+       勝負がついたので
+       倍率を1へ戻す
     */
 
     multiplier = 1;
@@ -870,13 +1080,15 @@ function playRound(
   /* =================================
      負け
 
-     敗北は今まで通り
-     倍率 × -1
+     倍率 × 1点を失う
   ================================= */
 
-  else if (result === "lose") {
+  else if (
+    result === "lose"
+  ) {
 
-    points = multiplier;
+    points =
+      multiplier;
 
 
     score -= points;
@@ -885,11 +1097,9 @@ function playRound(
     cpuWins++;
 
 
-    /*
-      敗北SE
-    */
-
-    playSE("roundLose");
+    playSE(
+      "roundLose"
+    );
 
 
     showResult(
@@ -899,8 +1109,8 @@ function playRound(
 
 
     /*
-      勝負がついたら
-      倍率を1倍へ戻す
+       勝負がついたので
+       倍率を1へ戻す
     */
 
     multiplier = 1;
@@ -917,18 +1127,12 @@ function playRound(
     draws++;
 
 
-    /*
-      倍率2倍
-    */
-
     multiplier *= 2;
 
 
-    /*
-      あいこSE
-    */
-
-    playSE("draw");
+    playSE(
+      "draw"
+    );
 
 
     showResult(
@@ -943,17 +1147,14 @@ function playRound(
      倍率アニメーション
   ------------------------- */
 
-  if (result === "draw") {
+  if (
+    result === "draw"
+  ) {
 
     multiplierElement.classList.remove(
       "multiplier-active"
     );
 
-
-    /*
-      CSSアニメーションを
-      再スタートさせる
-    */
 
     void multiplierElement.offsetWidth;
 
@@ -973,12 +1174,17 @@ function playRound(
 
 
   /* =================================
-     9ラウンド終了
+     9ラウンド目
   ================================= */
 
   if (
     round >= MAX_ROUNDS
   ) {
+
+    /*
+       これ以上の入力を
+       完全に受け付けない。
+    */
 
     gameOver = true;
 
@@ -987,15 +1193,20 @@ function playRound(
 
 
     /*
-      少し間を置いて
-      最終結果を表示
+       ここでは round++ しません。
+
+       9 / 9 の状態を維持したまま
+       結果発表へ進みます。
     */
 
-    setTimeout(() => {
+    setTimeout(
+      () => {
 
-      endGame();
+        endGame();
 
-    }, 1100);
+      },
+      900
+    );
 
 
     return;
@@ -1007,13 +1218,29 @@ function playRound(
      次のラウンド
   ================================= */
 
-  setTimeout(() => {
+  setTimeout(
+    () => {
 
-    round++;
+      round++;
 
-    updateDisplay();
 
-  }, 650);
+      /*
+         次のラウンドに進むまで
+         入力ロックを解除しない。
+
+         これによって、
+         高速連打でも
+         ラウンドが飛びません。
+      */
+
+      isProcessing = false;
+
+
+      updateDisplay();
+
+    },
+    650
+  );
 
 }
 
@@ -1024,42 +1251,60 @@ function playRound(
 
 function endGame() {
 
+  /*
+     二重実行防止
+  */
+
+  if (
+    endGameStarted
+  ) {
+
+    return;
+
+  }
+
+
+  endGameStarted = true;
+
+
   gameOver = true;
+
+  isProcessing = true;
 
 
   let finalResult = "";
 
 
   /* -------------------------
-     最終結果判定
+     最終結果
   ------------------------- */
 
-  if (score > 0) {
+  if (
+    score > 0
+  ) {
 
     finalResult =
       "🏆 貴様の勝利！";
 
 
-    /*
-      最終勝利SE
-    */
-
-    playSE("finalWin");
+    playSE(
+      "finalWin"
+    );
 
   }
 
 
-  else if (score < 0) {
+  else if (
+    score < 0
+  ) {
 
     finalResult =
       "💀 フレネミーの勝利…";
 
 
-    /*
-      最終敗北SE
-    */
-
-    playSE("finalLose");
+    playSE(
+      "finalLose"
+    );
 
   }
 
@@ -1080,6 +1325,16 @@ function endGame() {
 
 
   /* -------------------------
+     称号取得
+  ------------------------- */
+
+  const finalTitle =
+    getTitleByScore(
+      score
+    );
+
+
+  /* -------------------------
      最終結果表示
   ------------------------- */
 
@@ -1087,6 +1342,12 @@ function endGame() {
     "final-result"
   ).textContent =
     finalResult;
+
+
+  document.getElementById(
+    "final-title"
+  ).textContent =
+    finalTitle;
 
 
   document.getElementById(
@@ -1131,40 +1392,40 @@ function endGame() {
    ボタンイベント
 ========================================= */
 
-document
-  .getElementById("rockButton")
-  .addEventListener(
-    "click",
-    () => {
+rockButton.addEventListener(
+  "click",
+  () => {
 
-      playRound("rock");
+    playRound(
+      "rock"
+    );
 
-    }
-  );
-
-
-document
-  .getElementById("scissorsButton")
-  .addEventListener(
-    "click",
-    () => {
-
-      playRound("scissors");
-
-    }
-  );
+  }
+);
 
 
-document
-  .getElementById("paperButton")
-  .addEventListener(
-    "click",
-    () => {
+scissorsButton.addEventListener(
+  "click",
+  () => {
 
-      playRound("paper");
+    playRound(
+      "scissors"
+    );
 
-    }
-  );
+  }
+);
+
+
+paperButton.addEventListener(
+  "click",
+  () => {
+
+    playRound(
+      "paper"
+    );
+
+  }
+);
 
 
 /* =========================================
@@ -1172,7 +1433,9 @@ document
 ========================================= */
 
 document
-  .getElementById("restartButton")
+  .getElementById(
+    "restartButton"
+  )
   .addEventListener(
     "click",
     () => {

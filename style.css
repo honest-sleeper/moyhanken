@@ -12,6 +12,7 @@ html {
 
 body {
   margin: 0;
+
   min-height: 100vh;
 
   font-family:
@@ -40,10 +41,16 @@ body {
 ========================================= */
 
 .game-container {
-  width: min(1100px, calc(100% - 32px));
+  width:
+    min(
+      1100px,
+      calc(100% - 32px)
+    );
+
   margin: 0 auto;
 
-  padding: 28px 0 50px;
+  padding:
+    28px 0 50px;
 }
 
 
@@ -61,12 +68,19 @@ body {
   margin: 0;
 
   display: flex;
+
   justify-content: center;
+
   align-items: center;
 
   gap: 16px;
 
-  font-size: clamp(48px, 7vw, 78px);
+  font-size:
+    clamp(
+      48px,
+      7vw,
+      78px
+    );
 
   line-height: 1.1;
 
@@ -82,10 +96,13 @@ body {
 
 .title-hand {
   width: 65px;
+
   height: 65px;
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   flex-shrink: 0;
@@ -93,6 +110,7 @@ body {
 
 .title-hand img {
   width: 100%;
+
   height: 100%;
 
   object-fit: contain;
@@ -103,7 +121,8 @@ body {
 
   margin-top: 14px;
 
-  padding: 8px 20px;
+  padding:
+    8px 20px;
 
   border-radius: 999px;
 
@@ -126,7 +145,8 @@ body {
 .top-status {
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns:
+    1fr 1fr;
 
   gap: 18px;
 
@@ -145,15 +165,26 @@ body {
   align-items: center;
 
   background:
-    rgba(255, 255, 255, 0.96);
+    rgba(
+      255,
+      255,
+      255,
+      0.96
+    );
 
-  border: 1px solid #dfe3ec;
+  border:
+    1px solid #dfe3ec;
 
   border-radius: 18px;
 
   box-shadow:
     0 7px 20px
-    rgba(45, 58, 95, 0.08);
+    rgba(
+      45,
+      58,
+      95,
+      0.08
+    );
 }
 
 .status-label {
@@ -174,14 +205,16 @@ body {
   color: #17203a;
 }
 
-.multiplier-card .status-value {
+.multiplier-card
+.status-value {
   transition:
     transform 0.2s ease;
 }
 
 .multiplier-active {
   animation:
-    multiplierPulse 0.5s ease;
+    multiplierPulse
+    0.5s ease;
 }
 
 @keyframes multiplierPulse {
@@ -220,25 +253,39 @@ body {
 
 .player-card {
   background:
-    rgba(255, 255, 255, 0.96);
+    rgba(
+      255,
+      255,
+      255,
+      0.96
+    );
 
-  border: 1px solid #dfe3ec;
+  border:
+    1px solid #dfe3ec;
 
   border-radius: 18px;
 
-  padding: 17px 20px;
+  padding:
+    17px 20px;
 
   box-shadow:
     0 7px 20px
-    rgba(45, 58, 95, 0.08);
+    rgba(
+      45,
+      58,
+      95,
+      0.08
+    );
 }
 
 .player-card-you {
-  border-top: 5px solid #2f80ed;
+  border-top:
+    5px solid #2f80ed;
 }
 
 .player-card-cpu {
-  border-top: 5px solid #6850df;
+  border-top:
+    5px solid #6850df;
 }
 
 .player-name {
@@ -268,6 +315,7 @@ body {
 
 .stock-item img {
   width: 43px;
+
   height: 43px;
 
   object-fit: contain;
@@ -311,17 +359,29 @@ body {
 
 .battle-card {
   background:
-    rgba(255, 255, 255, 0.97);
+    rgba(
+      255,
+      255,
+      255,
+      0.97
+    );
 
-  border: 1px solid #dfe3ec;
+  border:
+    1px solid #dfe3ec;
 
   border-radius: 20px;
 
-  padding: 24px 20px 20px;
+  padding:
+    24px 20px 20px;
 
   box-shadow:
     0 8px 22px
-    rgba(45, 58, 95, 0.09);
+    rgba(
+      45,
+      58,
+      95,
+      0.09
+    );
 
   margin-bottom: 18px;
 }
@@ -344,7 +404,8 @@ body {
 
   min-width: 100px;
 
-  padding: 6px 16px;
+  padding:
+    6px 16px;
 
   border-radius: 999px;
 
@@ -357,7 +418,8 @@ body {
   margin-bottom: 8px;
 }
 
-.battle-side:last-child .battle-name {
+.battle-side:last-child
+.battle-name {
   background: #eeeaff;
 
   color: #624dd5;
@@ -385,12 +447,14 @@ body {
 
 .battle-hand img {
   width: 115px;
+
   height: 115px;
 
   object-fit: contain;
 
   animation:
-    handAppear 0.35s ease;
+    handAppear
+    0.35s ease;
 }
 
 @keyframes handAppear {
@@ -464,7 +528,8 @@ body {
   color: #17813c;
 
   animation:
-    resultPop 0.35s ease;
+    resultPop
+    0.35s ease;
 }
 
 .result-lose {
@@ -473,7 +538,8 @@ body {
   color: #d33131;
 
   animation:
-    resultPop 0.35s ease;
+    resultPop
+    0.35s ease;
 }
 
 .result-draw {
@@ -482,7 +548,8 @@ body {
   color: #a66a00;
 
   animation:
-    resultPop 0.35s ease;
+    resultPop
+    0.35s ease;
 }
 
 @keyframes resultPop {
@@ -522,9 +589,15 @@ body {
 
 .choice-card {
   background:
-    rgba(255, 255, 255, 0.97);
+    rgba(
+      255,
+      255,
+      255,
+      0.97
+    );
 
-  border: 1px solid #dfe3ec;
+  border:
+    1px solid #dfe3ec;
 
   border-radius: 20px;
 
@@ -532,7 +605,12 @@ body {
 
   box-shadow:
     0 8px 22px
-    rgba(45, 58, 95, 0.09);
+    rgba(
+      45,
+      58,
+      95,
+      0.09
+    );
 
   margin-bottom: 18px;
 }
@@ -561,13 +639,15 @@ body {
 .choice-button {
   position: relative;
 
-  border: 3px solid transparent;
+  border:
+    3px solid transparent;
 
   border-radius: 18px;
 
   min-height: 160px;
 
-  padding: 15px 10px;
+  padding:
+    15px 10px;
 
   cursor: pointer;
 
@@ -588,11 +668,17 @@ body {
 }
 
 .choice-button:hover:not(:disabled) {
-  transform: translateY(-4px);
+  transform:
+    translateY(-4px);
 
   box-shadow:
     0 10px 20px
-    rgba(45, 58, 95, 0.14);
+    rgba(
+      45,
+      58,
+      95,
+      0.14
+    );
 }
 
 .choice-button:active:not(:disabled) {
@@ -603,6 +689,7 @@ body {
 
 .choice-button img {
   width: 75px;
+
   height: 75px;
 
   object-fit: contain;
@@ -613,7 +700,8 @@ body {
     transform 0.2s ease;
 }
 
-.choice-button:hover:not(:disabled) img {
+.choice-button:hover:not(:disabled)
+img {
   transform:
     scale(1.08)
     rotate(-2deg);
@@ -692,7 +780,7 @@ body {
 
 
 /* =========================================
-   使用回数ゼロ
+   使用回数ゼロ・処理中
 ========================================= */
 
 .choice-button:disabled {
@@ -700,11 +788,25 @@ body {
 
   opacity: 0.35;
 
-  filter: grayscale(0.6);
+  filter:
+    grayscale(0.6);
 
   transform: none;
 
   box-shadow: none;
+}
+
+
+/*
+   ラウンド処理中。
+   スマホの高速連打時にも
+   入力中であることを視覚的に示す。
+*/
+
+.choice-button.processing {
+  cursor: wait;
+
+  opacity: 0.6;
 }
 
 
@@ -714,13 +816,20 @@ body {
 
 .rule-card {
   background:
-    rgba(255, 255, 255, 0.8);
+    rgba(
+      255,
+      255,
+      255,
+      0.8
+    );
 
-  border: 1px solid #e1e5ee;
+  border:
+    1px solid #e1e5ee;
 
   border-radius: 16px;
 
-  padding: 17px 20px;
+  padding:
+    17px 20px;
 
   color: #68738d;
 }
@@ -766,9 +875,15 @@ body {
   padding: 20px;
 
   background:
-    rgba(19, 26, 49, 0.58);
+    rgba(
+      19,
+      26,
+      49,
+      0.58
+    );
 
-  backdrop-filter: blur(5px);
+  backdrop-filter:
+    blur(5px);
 }
 
 .modal.hidden {
@@ -776,22 +891,38 @@ body {
 }
 
 .modal-content {
-  width: min(460px, 100%);
+  width:
+    min(
+      460px,
+      100%
+    );
+
+  max-height:
+    calc(100vh - 30px);
+
+  overflow-y: auto;
 
   background: white;
 
   border-radius: 25px;
 
-  padding: 32px 25px;
+  padding:
+    32px 25px;
 
   text-align: center;
 
   box-shadow:
     0 20px 60px
-    rgba(20, 27, 55, 0.3);
+    rgba(
+      20,
+      27,
+      55,
+      0.3
+    );
 
   animation:
-    modalAppear 0.35s ease;
+    modalAppear
+    0.35s ease;
 }
 
 @keyframes modalAppear {
@@ -827,8 +958,63 @@ body {
 
   font-weight: 900;
 
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
+
+
+/* =========================================
+   称号
+========================================= */
+
+.title-label {
+  font-size: 12px;
+
+  font-weight: 900;
+
+  color: #77819a;
+
+  margin-bottom: 5px;
+}
+
+.final-title {
+  display: inline-block;
+
+  padding:
+    8px 16px;
+
+  margin-bottom: 20px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f0ecff,
+      #e7f1ff
+    );
+
+  color: #4d42a6;
+
+  font-size: 17px;
+
+  line-height: 1.4;
+
+  font-weight: 900;
+
+  box-shadow:
+    0 4px 12px
+    rgba(
+      70,
+      75,
+      150,
+      0.08
+    );
+}
+
+
+/* =========================================
+   最終スコア
+========================================= */
 
 .final-score-label {
   font-size: 12px;
@@ -845,8 +1031,14 @@ body {
 
   font-weight: 900;
 
-  margin: 7px 0 22px;
+  margin:
+    7px 0 22px;
 }
+
+
+/* =========================================
+   最終戦績
+========================================= */
 
 .final-stats {
   display: grid;
@@ -864,7 +1056,8 @@ body {
 
   border-radius: 12px;
 
-  padding: 10px 5px;
+  padding:
+    10px 5px;
 }
 
 .final-stats span {
@@ -882,6 +1075,11 @@ body {
 
   margin-top: 3px;
 }
+
+
+/* =========================================
+   リスタート
+========================================= */
 
 .restart-button {
   width: 100%;
@@ -915,15 +1113,22 @@ body {
 }
 
 .restart-button:hover {
-  transform: translateY(-2px);
+  transform:
+    translateY(-2px);
 
   box-shadow:
     0 8px 20px
-    rgba(62, 87, 220, 0.25);
+    rgba(
+      62,
+      87,
+      220,
+      0.25
+    );
 }
 
 .restart-button:active {
-  transform: scale(0.98);
+  transform:
+    scale(0.98);
 }
 
 
@@ -946,8 +1151,6 @@ body {
   }
 
 
-  /* タイトル */
-
   .game-title {
     gap: 7px;
 
@@ -963,11 +1166,10 @@ body {
 
   .title-hand {
     width: 42px;
+
     height: 42px;
   }
 
-
-  /* ステータス */
 
   .top-status {
     gap: 9px;
@@ -984,8 +1186,6 @@ body {
   }
 
 
-  /* プレイヤー */
-
   .players-area {
     grid-template-columns: 1fr;
 
@@ -997,7 +1197,8 @@ body {
   }
 
   .player-card {
-    padding: 14px 10px;
+    padding:
+      14px 10px;
 
     border-radius: 15px;
   }
@@ -1008,14 +1209,14 @@ body {
 
   .stock-item img {
     width: 38px;
+
     height: 38px;
   }
 
 
-  /* バトル */
-
   .battle-card {
-    padding: 16px 10px;
+    padding:
+      16px 10px;
 
     border-radius: 16px;
   }
@@ -1033,6 +1234,7 @@ body {
 
   .battle-hand img {
     width: 85px;
+
     height: 85px;
   }
 
@@ -1043,7 +1245,8 @@ body {
   .battle-name {
     min-width: 80px;
 
-    padding: 5px 12px;
+    padding:
+      5px 12px;
 
     font-size: 13px;
   }
@@ -1055,10 +1258,9 @@ body {
   }
 
 
-  /* 選択 */
-
   .choice-card {
-    padding: 14px 8px;
+    padding:
+      14px 8px;
 
     border-radius: 16px;
   }
@@ -1070,7 +1272,8 @@ body {
   .choice-button {
     min-height: 130px;
 
-    padding: 9px 4px;
+    padding:
+      9px 4px;
 
     border-width: 2px;
 
@@ -1079,6 +1282,7 @@ body {
 
   .choice-button img {
     width: 58px;
+
     height: 58px;
   }
 
@@ -1091,8 +1295,6 @@ body {
   }
 
 
-  /* ルール */
-
   .rule-card {
     padding: 14px;
 
@@ -1104,14 +1306,24 @@ body {
   }
 
 
-  /* モーダル */
-
   .modal-content {
-    padding: 25px 18px;
+    padding:
+      25px 18px;
   }
 
   .modal-title {
     font-size: 24px;
+  }
+
+  .final-result {
+    font-size: 21px;
+  }
+
+  .final-title {
+    font-size: 15px;
+
+    padding:
+      7px 12px;
   }
 
   .final-score {
@@ -1135,6 +1347,7 @@ body {
 
   .title-hand {
     width: 32px;
+
     height: 32px;
   }
 
@@ -1144,6 +1357,7 @@ body {
 
   .choice-button img {
     width: 50px;
+
     height: 50px;
   }
 

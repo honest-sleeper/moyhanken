@@ -2,36 +2,90 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>も”ゃんけん</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <!-- =========================
+       ブラウザタイトル
+  ========================== -->
+  <title>も"ゃんけん</title>
+
+
+  <!-- =========================
+       Discordなどでリンクを貼った際の情報
+  ========================== -->
+
+  <meta
+    property="og:title"
+    content="も&quot;ゃんけん"
+  >
+
+  <meta
+    property="og:description"
+    content="限界を超えろ"
+  >
+
+  <meta
+    name="description"
+    content="限界を超えろ"
+  >
+
+  <meta
+    name="twitter:title"
+    content="も&quot;ゃんけん"
+  >
+
+  <meta
+    name="twitter:description"
+    content="限界を超えろ"
+  >
+
 
   <link rel="stylesheet" href="style.css">
 </head>
+
 
 <body>
 
   <main class="game-container">
 
+
     <!-- =========================
          タイトル
     ========================== -->
+
     <header class="game-header">
 
       <h1 class="game-title">
+
         <span class="title-hand">
-          <img src="chyoki.png" alt="チョキ">
+          <img
+            src="chyoki.png"
+            alt="チョキ"
+          >
         </span>
 
         も”ゃんけん
 
         <span class="title-hand">
-          <img src="chyoki.png" alt="チョキ">
+          <img
+            src="chyoki.png"
+            alt="チョキ"
+          >
         </span>
+
       </h1>
 
+
       <div class="round-badge">
-        ROUND <span id="roundNumber">1</span> / 9
+
+        ROUND
+        <span id="roundNumber">1</span>
+        / 9
+
       </div>
 
     </header>
@@ -40,6 +94,7 @@
     <!-- =========================
          スコア・倍率
     ========================== -->
+
     <section class="top-status">
 
       <div class="status-card score-card">
@@ -48,7 +103,10 @@
           SCORE
         </div>
 
-        <div id="score" class="status-value">
+        <div
+          id="score"
+          class="status-value"
+        >
           0
         </div>
 
@@ -61,7 +119,10 @@
           現在の倍率
         </div>
 
-        <div id="multiplier" class="status-value">
+        <div
+          id="multiplier"
+          class="status-value"
+        >
           ×1
         </div>
 
@@ -73,20 +134,30 @@
     <!-- =========================
          プレイヤー情報
     ========================== -->
+
     <section class="players-area">
 
+
       <!-- 貴様 -->
+
       <div class="player-card player-card-you">
 
         <div class="player-name">
           貴様
         </div>
 
+
         <div class="stock-list">
+
+
+          <!-- グー -->
 
           <div class="stock-item">
 
-            <img src="guu.png" alt="グー">
+            <img
+              src="guu.png"
+              alt="グー"
+            >
 
             <div class="stock-name">
               グー
@@ -102,9 +173,14 @@
           </div>
 
 
+          <!-- チョキ -->
+
           <div class="stock-item">
 
-            <img src="chyoki.png" alt="チョキ">
+            <img
+              src="chyoki.png"
+              alt="チョキ"
+            >
 
             <div class="stock-name">
               チョキ
@@ -120,9 +196,14 @@
           </div>
 
 
+          <!-- パー -->
+
           <div class="stock-item">
 
-            <img src="pa.png" alt="パー">
+            <img
+              src="pa.png"
+              alt="パー"
+            >
 
             <div class="stock-name">
               パー
@@ -148,17 +229,25 @@
 
 
       <!-- フレネミー -->
+
       <div class="player-card player-card-cpu">
 
         <div class="player-name">
           フレネミー
         </div>
 
+
         <div class="stock-list">
+
+
+          <!-- グー -->
 
           <div class="stock-item">
 
-            <img src="guu.png" alt="グー">
+            <img
+              src="guu.png"
+              alt="グー"
+            >
 
             <div class="stock-name">
               グー
@@ -174,9 +263,14 @@
           </div>
 
 
+          <!-- チョキ -->
+
           <div class="stock-item">
 
-            <img src="chyoki.png" alt="チョキ">
+            <img
+              src="chyoki.png"
+              alt="チョキ"
+            >
 
             <div class="stock-name">
               チョキ
@@ -192,9 +286,14 @@
           </div>
 
 
+          <!-- パー -->
+
           <div class="stock-item">
 
-            <img src="pa.png" alt="パー">
+            <img
+              src="pa.png"
+              alt="パー"
+            >
 
             <div class="stock-name">
               パー
@@ -219,11 +318,14 @@
     <!-- =========================
          バトルエリア
     ========================== -->
+
     <section class="battle-card">
 
       <div class="battle-players">
 
+
         <!-- 貴様 -->
+
         <div class="battle-side">
 
           <div class="battle-name">
@@ -241,12 +343,14 @@
 
 
         <!-- VS -->
+
         <div class="battle-vs">
           VS
         </div>
 
 
         <!-- フレネミー -->
+
         <div class="battle-side">
 
           <div class="battle-name">
@@ -265,12 +369,15 @@
       </div>
 
 
-      <!-- 勝敗 -->
+      <!-- =========================
+           勝敗
+      ========================== -->
+
       <div
         id="result-message"
         class="result-message"
       >
-        手を選んでください
+        おい、選べる
       </div>
 
 
@@ -287,6 +394,7 @@
     <!-- =========================
          手の選択
     ========================== -->
+
     <section class="choice-card">
 
       <div class="choice-title">
@@ -296,7 +404,9 @@
 
       <div class="choice-buttons">
 
+
         <!-- グー -->
+
         <button
           class="choice-button choice-rock"
           id="rockButton"
@@ -313,14 +423,17 @@
           </span>
 
           <span class="choice-count">
+
             残り
             <span id="button-rock-count">3</span>回
+
           </span>
 
         </button>
 
 
         <!-- チョキ -->
+
         <button
           class="choice-button choice-scissors"
           id="scissorsButton"
@@ -337,14 +450,17 @@
           </span>
 
           <span class="choice-count">
+
             残り
             <span id="button-scissors-count">3</span>回
+
           </span>
 
         </button>
 
 
         <!-- パー -->
+
         <button
           class="choice-button choice-paper"
           id="paperButton"
@@ -361,8 +477,10 @@
           </span>
 
           <span class="choice-count">
+
             残り
             <span id="button-paper-count">3</span>回
+
           </span>
 
         </button>
@@ -375,11 +493,13 @@
     <!-- =========================
          ルール
     ========================== -->
+
     <section class="rule-card">
 
       <div class="rule-title">
         📖 ゲームルール
       </div>
+
 
       <div class="rule-text">
 
@@ -388,7 +508,7 @@
         </p>
 
         <p>
-          ・勝ち：倍率分のポイントを獲得。
+          ・勝ち：倍率 × 2点を獲得。
         </p>
 
         <p>
@@ -417,12 +537,14 @@
   <!-- =========================
        ゲーム終了モーダル
   ========================== -->
+
   <div
     id="gameOverModal"
     class="modal hidden"
   >
 
     <div class="modal-content">
+
 
       <div class="modal-title">
         🎉 GAME SET 🎉
@@ -434,6 +556,23 @@
         class="final-result"
       >
         結果
+      </div>
+
+
+      <!-- =========================
+           称号
+      ========================== -->
+
+      <div class="title-label">
+        貴様の称号
+      </div>
+
+
+      <div
+        id="final-title"
+        class="final-title"
+      >
+        カニの食べられないところ
       </div>
 
 
@@ -452,20 +591,51 @@
 
       <div class="final-stats">
 
-        <div>
-          <span>貴様の勝ち</span>
-          <strong id="final-player-wins">0</strong>
-        </div>
 
         <div>
-          <span>フレネミーの勝ち</span>
-          <strong id="final-cpu-wins">0</strong>
+
+          <span>
+            貴様の勝ち
+          </span>
+
+          <strong
+            id="final-player-wins"
+          >
+            0
+          </strong>
+
         </div>
 
+
         <div>
-          <span>あいこ</span>
-          <strong id="final-draws">0</strong>
+
+          <span>
+            フレネミーの勝ち
+          </span>
+
+          <strong
+            id="final-cpu-wins"
+          >
+            0
+          </strong>
+
         </div>
+
+
+        <div>
+
+          <span>
+            あいこ
+          </span>
+
+          <strong
+            id="final-draws"
+          >
+            0
+          </strong>
+
+        </div>
+
 
       </div>
 
@@ -482,7 +652,6 @@
   </div>
 
 
-  <!-- JavaScript -->
   <script src="script.js"></script>
 
 </body>
