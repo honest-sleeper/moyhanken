@@ -1,0 +1,1158 @@
+/* =========================================
+   基本設定
+========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Hiragino Kaku Gothic ProN",
+    "Yu Gothic",
+    Meiryo,
+    sans-serif;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f5f7ff 0%,
+      #f8f7ff 50%,
+      #f4fbff 100%
+    );
+
+  color: #18213d;
+}
+
+
+/* =========================================
+   メイン
+========================================= */
+
+.game-container {
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+
+  padding: 28px 0 50px;
+}
+
+
+/* =========================================
+   タイトル
+========================================= */
+
+.game-header {
+  text-align: center;
+
+  margin-bottom: 22px;
+}
+
+.game-title {
+  margin: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 16px;
+
+  font-size: clamp(48px, 7vw, 78px);
+
+  line-height: 1.1;
+
+  font-weight: 900;
+
+  letter-spacing: 3px;
+
+  color: #18213d;
+
+  text-shadow:
+    3px 4px 0 #ffffff;
+}
+
+.title-hand {
+  width: 65px;
+  height: 65px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+.title-hand img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+}
+
+.round-badge {
+  display: inline-block;
+
+  margin-top: 14px;
+
+  padding: 8px 20px;
+
+  border-radius: 999px;
+
+  background: #e9edff;
+
+  color: #4b57d8;
+
+  font-weight: 900;
+
+  font-size: 15px;
+
+  letter-spacing: 0.5px;
+}
+
+
+/* =========================================
+   スコア・倍率
+========================================= */
+
+.top-status {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 18px;
+
+  margin-bottom: 18px;
+}
+
+.status-card {
+  min-height: 92px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  background:
+    rgba(255, 255, 255, 0.96);
+
+  border: 1px solid #dfe3ec;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 7px 20px
+    rgba(45, 58, 95, 0.08);
+}
+
+.status-label {
+  font-size: 13px;
+
+  font-weight: 800;
+
+  color: #65708a;
+
+  margin-bottom: 4px;
+}
+
+.status-value {
+  font-size: 30px;
+
+  font-weight: 900;
+
+  color: #17203a;
+}
+
+.multiplier-card .status-value {
+  transition:
+    transform 0.2s ease;
+}
+
+.multiplier-active {
+  animation:
+    multiplierPulse 0.5s ease;
+}
+
+@keyframes multiplierPulse {
+
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.25);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+
+}
+
+
+/* =========================================
+   プレイヤー情報
+========================================= */
+
+.players-area {
+  display: grid;
+
+  grid-template-columns:
+    1fr 40px 1fr;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 18px;
+}
+
+.player-card {
+  background:
+    rgba(255, 255, 255, 0.96);
+
+  border: 1px solid #dfe3ec;
+
+  border-radius: 18px;
+
+  padding: 17px 20px;
+
+  box-shadow:
+    0 7px 20px
+    rgba(45, 58, 95, 0.08);
+}
+
+.player-card-you {
+  border-top: 5px solid #2f80ed;
+}
+
+.player-card-cpu {
+  border-top: 5px solid #6850df;
+}
+
+.player-name {
+  text-align: center;
+
+  font-size: 18px;
+
+  font-weight: 900;
+
+  margin-bottom: 13px;
+}
+
+.stock-list {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 8px;
+}
+
+.stock-item {
+  text-align: center;
+
+  min-width: 0;
+}
+
+.stock-item img {
+  width: 43px;
+  height: 43px;
+
+  object-fit: contain;
+
+  display: block;
+
+  margin:
+    0 auto 2px;
+}
+
+.stock-name {
+  font-size: 12px;
+
+  color: #65708a;
+
+  font-weight: 700;
+}
+
+.stock-count {
+  font-size: 17px;
+
+  font-weight: 900;
+
+  margin-top: 2px;
+}
+
+.vs-small {
+  text-align: center;
+
+  font-size: 17px;
+
+  font-weight: 900;
+
+  color: #68718b;
+}
+
+
+/* =========================================
+   バトルエリア
+========================================= */
+
+.battle-card {
+  background:
+    rgba(255, 255, 255, 0.97);
+
+  border: 1px solid #dfe3ec;
+
+  border-radius: 20px;
+
+  padding: 24px 20px 20px;
+
+  box-shadow:
+    0 8px 22px
+    rgba(45, 58, 95, 0.09);
+
+  margin-bottom: 18px;
+}
+
+.battle-players {
+  display: grid;
+
+  grid-template-columns:
+    1fr 70px 1fr;
+
+  align-items: center;
+}
+
+.battle-side {
+  text-align: center;
+}
+
+.battle-name {
+  display: inline-block;
+
+  min-width: 100px;
+
+  padding: 6px 16px;
+
+  border-radius: 999px;
+
+  background: #e8f1ff;
+
+  color: #2878dd;
+
+  font-weight: 900;
+
+  margin-bottom: 8px;
+}
+
+.battle-side:last-child .battle-name {
+  background: #eeeaff;
+
+  color: #624dd5;
+}
+
+.battle-hand {
+  height: 120px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 72px;
+
+  font-weight: 900;
+
+  color: #b7bfd2;
+
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.battle-hand img {
+  width: 115px;
+  height: 115px;
+
+  object-fit: contain;
+
+  animation:
+    handAppear 0.35s ease;
+}
+
+@keyframes handAppear {
+
+  0% {
+    transform:
+      scale(0.55)
+      rotate(-8deg);
+
+    opacity: 0;
+  }
+
+  70% {
+    transform:
+      scale(1.08)
+      rotate(2deg);
+  }
+
+  100% {
+    transform:
+      scale(1)
+      rotate(0deg);
+
+    opacity: 1;
+  }
+
+}
+
+.battle-vs {
+  text-align: center;
+
+  font-size: 26px;
+
+  font-weight: 900;
+
+  color: #56617e;
+}
+
+
+/* =========================================
+   結果表示
+========================================= */
+
+.result-message {
+  margin-top: 8px;
+
+  min-height: 56px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: #f3f5f8;
+
+  font-size: 22px;
+
+  font-weight: 900;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.result-win {
+  background: #e7f8ec;
+
+  color: #17813c;
+
+  animation:
+    resultPop 0.35s ease;
+}
+
+.result-lose {
+  background: #fff0f0;
+
+  color: #d33131;
+
+  animation:
+    resultPop 0.35s ease;
+}
+
+.result-draw {
+  background: #fff7df;
+
+  color: #a66a00;
+
+  animation:
+    resultPop 0.35s ease;
+}
+
+@keyframes resultPop {
+
+  0% {
+    transform: scale(0.96);
+  }
+
+  60% {
+    transform: scale(1.03);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+
+}
+
+.points-message {
+  text-align: center;
+
+  min-height: 25px;
+
+  margin-top: 8px;
+
+  font-size: 15px;
+
+  font-weight: 800;
+
+  color: #65708a;
+}
+
+
+/* =========================================
+   手の選択
+========================================= */
+
+.choice-card {
+  background:
+    rgba(255, 255, 255, 0.97);
+
+  border: 1px solid #dfe3ec;
+
+  border-radius: 20px;
+
+  padding: 20px;
+
+  box-shadow:
+    0 8px 22px
+    rgba(45, 58, 95, 0.09);
+
+  margin-bottom: 18px;
+}
+
+.choice-title {
+  text-align: center;
+
+  font-size: 15px;
+
+  font-weight: 900;
+
+  color: #63708d;
+
+  margin-bottom: 14px;
+}
+
+.choice-buttons {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 12px;
+}
+
+.choice-button {
+  position: relative;
+
+  border: 3px solid transparent;
+
+  border-radius: 18px;
+
+  min-height: 160px;
+
+  padding: 15px 10px;
+
+  cursor: pointer;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+
+  font-family: inherit;
+}
+
+.choice-button:hover:not(:disabled) {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 10px 20px
+    rgba(45, 58, 95, 0.14);
+}
+
+.choice-button:active:not(:disabled) {
+  transform:
+    translateY(0)
+    scale(0.98);
+}
+
+.choice-button img {
+  width: 75px;
+  height: 75px;
+
+  object-fit: contain;
+
+  margin-bottom: 5px;
+
+  transition:
+    transform 0.2s ease;
+}
+
+.choice-button:hover:not(:disabled) img {
+  transform:
+    scale(1.08)
+    rotate(-2deg);
+}
+
+
+/* グー */
+
+.choice-rock {
+  background:
+    linear-gradient(
+      145deg,
+      #eee9ff,
+      #ddd5ff
+    );
+
+  border-color: #7354dd;
+}
+
+.choice-rock .choice-name {
+  color: #5134bf;
+}
+
+
+/* チョキ */
+
+.choice-scissors {
+  background:
+    linear-gradient(
+      145deg,
+      #fff4bd,
+      #ffe28a
+    );
+
+  border-color: #e5a800;
+}
+
+.choice-scissors .choice-name {
+  color: #8e6500;
+}
+
+
+/* パー */
+
+.choice-paper {
+  background:
+    linear-gradient(
+      145deg,
+      #cffff0,
+      #a8efc5
+    );
+
+  border-color: #24a14d;
+}
+
+.choice-paper .choice-name {
+  color: #147332;
+}
+
+
+.choice-name {
+  font-size: 18px;
+
+  font-weight: 900;
+}
+
+.choice-count {
+  margin-top: 5px;
+
+  font-size: 12px;
+
+  color: #66708a;
+
+  font-weight: 700;
+}
+
+
+/* =========================================
+   使用回数ゼロ
+========================================= */
+
+.choice-button:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.35;
+
+  filter: grayscale(0.6);
+
+  transform: none;
+
+  box-shadow: none;
+}
+
+
+/* =========================================
+   ルール
+========================================= */
+
+.rule-card {
+  background:
+    rgba(255, 255, 255, 0.8);
+
+  border: 1px solid #e1e5ee;
+
+  border-radius: 16px;
+
+  padding: 17px 20px;
+
+  color: #68738d;
+}
+
+.rule-title {
+  font-size: 15px;
+
+  font-weight: 900;
+
+  color: #46516e;
+
+  margin-bottom: 8px;
+}
+
+.rule-text {
+  font-size: 12px;
+
+  line-height: 1.8;
+}
+
+.rule-text p {
+  margin: 0;
+}
+
+
+/* =========================================
+   ゲーム終了モーダル
+========================================= */
+
+.modal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  background:
+    rgba(19, 26, 49, 0.58);
+
+  backdrop-filter: blur(5px);
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  width: min(460px, 100%);
+
+  background: white;
+
+  border-radius: 25px;
+
+  padding: 32px 25px;
+
+  text-align: center;
+
+  box-shadow:
+    0 20px 60px
+    rgba(20, 27, 55, 0.3);
+
+  animation:
+    modalAppear 0.35s ease;
+}
+
+@keyframes modalAppear {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(20px)
+      scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+.modal-title {
+  font-size: 28px;
+
+  font-weight: 900;
+
+  margin-bottom: 12px;
+}
+
+.final-result {
+  font-size: 25px;
+
+  font-weight: 900;
+
+  margin-bottom: 22px;
+}
+
+.final-score-label {
+  font-size: 12px;
+
+  font-weight: 800;
+
+  color: #77819a;
+}
+
+.final-score {
+  font-size: 55px;
+
+  line-height: 1;
+
+  font-weight: 900;
+
+  margin: 7px 0 22px;
+}
+
+.final-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 8px;
+
+  margin-bottom: 24px;
+}
+
+.final-stats > div {
+  background: #f4f6fa;
+
+  border-radius: 12px;
+
+  padding: 10px 5px;
+}
+
+.final-stats span {
+  display: block;
+
+  font-size: 11px;
+
+  color: #69738c;
+}
+
+.final-stats strong {
+  display: block;
+
+  font-size: 22px;
+
+  margin-top: 3px;
+}
+
+.restart-button {
+  width: 100%;
+
+  border: 0;
+
+  border-radius: 14px;
+
+  padding: 15px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #347ff0,
+      #6152df
+    );
+
+  color: white;
+
+  font-size: 17px;
+
+  font-weight: 900;
+
+  cursor: pointer;
+
+  font-family: inherit;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.restart-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(62, 87, 220, 0.25);
+}
+
+.restart-button:active {
+  transform: scale(0.98);
+}
+
+
+/* =========================================
+   スマートフォン
+========================================= */
+
+@media (max-width: 700px) {
+
+  .game-container {
+    width:
+      min(
+        calc(100% - 18px),
+        560px
+      );
+
+    padding-top: 18px;
+
+    padding-bottom: 35px;
+  }
+
+
+  /* タイトル */
+
+  .game-title {
+    gap: 7px;
+
+    font-size:
+      clamp(
+        38px,
+        10vw,
+        52px
+      );
+
+    letter-spacing: 1px;
+  }
+
+  .title-hand {
+    width: 42px;
+    height: 42px;
+  }
+
+
+  /* ステータス */
+
+  .top-status {
+    gap: 9px;
+  }
+
+  .status-card {
+    min-height: 78px;
+
+    border-radius: 14px;
+  }
+
+  .status-value {
+    font-size: 25px;
+  }
+
+
+  /* プレイヤー */
+
+  .players-area {
+    grid-template-columns: 1fr;
+
+    gap: 7px;
+  }
+
+  .vs-small {
+    display: none;
+  }
+
+  .player-card {
+    padding: 14px 10px;
+
+    border-radius: 15px;
+  }
+
+  .player-name {
+    margin-bottom: 8px;
+  }
+
+  .stock-item img {
+    width: 38px;
+    height: 38px;
+  }
+
+
+  /* バトル */
+
+  .battle-card {
+    padding: 16px 10px;
+
+    border-radius: 16px;
+  }
+
+  .battle-players {
+    grid-template-columns:
+      1fr 45px 1fr;
+  }
+
+  .battle-hand {
+    height: 90px;
+
+    font-size: 55px;
+  }
+
+  .battle-hand img {
+    width: 85px;
+    height: 85px;
+  }
+
+  .battle-vs {
+    font-size: 20px;
+  }
+
+  .battle-name {
+    min-width: 80px;
+
+    padding: 5px 12px;
+
+    font-size: 13px;
+  }
+
+  .result-message {
+    font-size: 18px;
+
+    min-height: 50px;
+  }
+
+
+  /* 選択 */
+
+  .choice-card {
+    padding: 14px 8px;
+
+    border-radius: 16px;
+  }
+
+  .choice-buttons {
+    gap: 7px;
+  }
+
+  .choice-button {
+    min-height: 130px;
+
+    padding: 9px 4px;
+
+    border-width: 2px;
+
+    border-radius: 14px;
+  }
+
+  .choice-button img {
+    width: 58px;
+    height: 58px;
+  }
+
+  .choice-name {
+    font-size: 15px;
+  }
+
+  .choice-count {
+    font-size: 10px;
+  }
+
+
+  /* ルール */
+
+  .rule-card {
+    padding: 14px;
+
+    border-radius: 14px;
+  }
+
+  .rule-text {
+    font-size: 11px;
+  }
+
+
+  /* モーダル */
+
+  .modal-content {
+    padding: 25px 18px;
+  }
+
+  .modal-title {
+    font-size: 24px;
+  }
+
+  .final-score {
+    font-size: 45px;
+  }
+
+}
+
+
+/* =========================================
+   さらに小さいスマホ
+========================================= */
+
+@media (max-width: 380px) {
+
+  .game-title {
+    font-size: 34px;
+
+    gap: 4px;
+  }
+
+  .title-hand {
+    width: 32px;
+    height: 32px;
+  }
+
+  .choice-button {
+    min-height: 120px;
+  }
+
+  .choice-button img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .choice-name {
+    font-size: 14px;
+  }
+
+  .choice-count {
+    font-size: 9px;
+  }
+
+}

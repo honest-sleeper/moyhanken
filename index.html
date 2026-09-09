@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>も”ゃんけん</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <main class="game-container">
+
+    <!-- =========================
+         タイトル
+    ========================== -->
+    <header class="game-header">
+
+      <h1 class="game-title">
+        <span class="title-hand">
+          <img src="chyoki.png" alt="チョキ">
+        </span>
+
+        も”ゃんけん
+
+        <span class="title-hand">
+          <img src="chyoki.png" alt="チョキ">
+        </span>
+      </h1>
+
+      <div class="round-badge">
+        ROUND <span id="roundNumber">1</span> / 9
+      </div>
+
+    </header>
+
+
+    <!-- =========================
+         スコア・倍率
+    ========================== -->
+    <section class="top-status">
+
+      <div class="status-card score-card">
+
+        <div class="status-label">
+          SCORE
+        </div>
+
+        <div id="score" class="status-value">
+          0
+        </div>
+
+      </div>
+
+
+      <div class="status-card multiplier-card">
+
+        <div class="status-label">
+          現在の倍率
+        </div>
+
+        <div id="multiplier" class="status-value">
+          ×1
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         プレイヤー情報
+    ========================== -->
+    <section class="players-area">
+
+      <!-- 貴様 -->
+      <div class="player-card player-card-you">
+
+        <div class="player-name">
+          貴様
+        </div>
+
+        <div class="stock-list">
+
+          <div class="stock-item">
+
+            <img src="guu.png" alt="グー">
+
+            <div class="stock-name">
+              グー
+            </div>
+
+            <div
+              class="stock-count"
+              id="player-rock-count"
+            >
+              3
+            </div>
+
+          </div>
+
+
+          <div class="stock-item">
+
+            <img src="chyoki.png" alt="チョキ">
+
+            <div class="stock-name">
+              チョキ
+            </div>
+
+            <div
+              class="stock-count"
+              id="player-scissors-count"
+            >
+              3
+            </div>
+
+          </div>
+
+
+          <div class="stock-item">
+
+            <img src="pa.png" alt="パー">
+
+            <div class="stock-name">
+              パー
+            </div>
+
+            <div
+              class="stock-count"
+              id="player-paper-count"
+            >
+              3
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="vs-small">
+        VS
+      </div>
+
+
+      <!-- フレネミー -->
+      <div class="player-card player-card-cpu">
+
+        <div class="player-name">
+          フレネミー
+        </div>
+
+        <div class="stock-list">
+
+          <div class="stock-item">
+
+            <img src="guu.png" alt="グー">
+
+            <div class="stock-name">
+              グー
+            </div>
+
+            <div
+              class="stock-count"
+              id="cpu-rock-count"
+            >
+              3
+            </div>
+
+          </div>
+
+
+          <div class="stock-item">
+
+            <img src="chyoki.png" alt="チョキ">
+
+            <div class="stock-name">
+              チョキ
+            </div>
+
+            <div
+              class="stock-count"
+              id="cpu-scissors-count"
+            >
+              3
+            </div>
+
+          </div>
+
+
+          <div class="stock-item">
+
+            <img src="pa.png" alt="パー">
+
+            <div class="stock-name">
+              パー
+            </div>
+
+            <div
+              class="stock-count"
+              id="cpu-paper-count"
+            >
+              3
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         バトルエリア
+    ========================== -->
+    <section class="battle-card">
+
+      <div class="battle-players">
+
+        <!-- 貴様 -->
+        <div class="battle-side">
+
+          <div class="battle-name">
+            貴様
+          </div>
+
+          <div
+            id="player-hand"
+            class="battle-hand"
+          >
+            ?
+          </div>
+
+        </div>
+
+
+        <!-- VS -->
+        <div class="battle-vs">
+          VS
+        </div>
+
+
+        <!-- フレネミー -->
+        <div class="battle-side">
+
+          <div class="battle-name">
+            フレネミー
+          </div>
+
+          <div
+            id="cpu-hand"
+            class="battle-hand"
+          >
+            ?
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- 勝敗 -->
+      <div
+        id="result-message"
+        class="result-message"
+      >
+        手を選んでください
+      </div>
+
+
+      <div
+        id="points-message"
+        class="points-message"
+      >
+        現在の倍率 ×1
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         手の選択
+    ========================== -->
+    <section class="choice-card">
+
+      <div class="choice-title">
+        貴様の手を選択
+      </div>
+
+
+      <div class="choice-buttons">
+
+        <!-- グー -->
+        <button
+          class="choice-button choice-rock"
+          id="rockButton"
+          data-hand="rock"
+        >
+
+          <img
+            src="guu.png"
+            alt="グー"
+          >
+
+          <span class="choice-name">
+            グー
+          </span>
+
+          <span class="choice-count">
+            残り
+            <span id="button-rock-count">3</span>回
+          </span>
+
+        </button>
+
+
+        <!-- チョキ -->
+        <button
+          class="choice-button choice-scissors"
+          id="scissorsButton"
+          data-hand="scissors"
+        >
+
+          <img
+            src="chyoki.png"
+            alt="チョキ"
+          >
+
+          <span class="choice-name">
+            チョキ
+          </span>
+
+          <span class="choice-count">
+            残り
+            <span id="button-scissors-count">3</span>回
+          </span>
+
+        </button>
+
+
+        <!-- パー -->
+        <button
+          class="choice-button choice-paper"
+          id="paperButton"
+          data-hand="paper"
+        >
+
+          <img
+            src="pa.png"
+            alt="パー"
+          >
+
+          <span class="choice-name">
+            パー
+          </span>
+
+          <span class="choice-count">
+            残り
+            <span id="button-paper-count">3</span>回
+          </span>
+
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         ルール
+    ========================== -->
+    <section class="rule-card">
+
+      <div class="rule-title">
+        📖 ゲームルール
+      </div>
+
+      <div class="rule-text">
+
+        <p>
+          ・グー、チョキ、パーはそれぞれ3回まで使用できます。
+        </p>
+
+        <p>
+          ・勝ち：倍率分のポイントを獲得。
+        </p>
+
+        <p>
+          ・負け：倍率分のポイントを失います。
+        </p>
+
+        <p>
+          ・あいこ：次の倍率が2倍になります。
+        </p>
+
+        <p>
+          ・あいこが続くほど倍率がどんどん上がります。
+        </p>
+
+        <p>
+          ・全9ラウンド終了時のスコアで勝負！
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       ゲーム終了モーダル
+  ========================== -->
+  <div
+    id="gameOverModal"
+    class="modal hidden"
+  >
+
+    <div class="modal-content">
+
+      <div class="modal-title">
+        🎉 GAME SET 🎉
+      </div>
+
+
+      <div
+        id="final-result"
+        class="final-result"
+      >
+        結果
+      </div>
+
+
+      <div class="final-score-label">
+        FINAL SCORE
+      </div>
+
+
+      <div
+        id="final-score"
+        class="final-score"
+      >
+        0
+      </div>
+
+
+      <div class="final-stats">
+
+        <div>
+          <span>貴様の勝ち</span>
+          <strong id="final-player-wins">0</strong>
+        </div>
+
+        <div>
+          <span>フレネミーの勝ち</span>
+          <strong id="final-cpu-wins">0</strong>
+        </div>
+
+        <div>
+          <span>あいこ</span>
+          <strong id="final-draws">0</strong>
+        </div>
+
+      </div>
+
+
+      <button
+        id="restartButton"
+        class="restart-button"
+      >
+        もう一度遊ぶ
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
+
+</body>
+</html>
